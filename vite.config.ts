@@ -12,7 +12,7 @@ export default defineConfig({
   },
   server: {
     host: true, // Listen on all local IPs
-    port: 5173, // Default Vite port
+    port: 5176, // Match Convex's configured port
   },
   build: {
     outDir: 'dist',
