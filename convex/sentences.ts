@@ -1,4 +1,4 @@
-import { query } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { DIFFICULTY_LEVELS } from "../src/lib/constants";
 
@@ -13,6 +13,21 @@ export const listAll = query({
   args: {},
   handler: async (ctx) => {
     return await ctx.db.query("sentences").collect();
+  },
+});
+
+export const create = mutation({
+  args: {
+    text: v.string(),
+    translation: v.string(),
+    audioUrl: v.optional(v.string()),
+    distractorWords: v.optional(v.array(v.string())),
+    explanation: v.optional(v.string()),
+    explanationTranslated: v.optional(v.string()),
+    addedBy: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("sentences", args);
   },
 });
 

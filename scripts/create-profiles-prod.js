@@ -1,5 +1,7 @@
 import { ConvexClient } from "convex/browser";
 
+const PROD_CONVEX_URL = "https://wandering-bird-460.convex.cloud";
+
 const profiles = [
     { name: 'Clau', emoji: '👑' },
     { name: 'Falero', emoji: '🐍' },
@@ -23,7 +25,8 @@ const profiles = [
 ];
 
 async function createProfiles() {
-    const client = new ConvexClient(process.env.VITE_CONVEX_URL);
+    console.log('Creating profiles in production environment...');
+    const client = new ConvexClient(PROD_CONVEX_URL);
     
     for (const profile of profiles) {
         try {
@@ -38,7 +41,7 @@ async function createProfiles() {
         }
     }
     
-    console.log('All profiles created successfully!');
+    console.log('All profiles created successfully in production!');
     process.exit(0);
 }
 

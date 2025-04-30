@@ -9,7 +9,8 @@ const applicationTables = {
     audioUrl: v.optional(v.string()),
     distractorWords: v.optional(v.array(v.string())),
     explanation: v.optional(v.string()),
-    explanation_spanish: v.optional(v.string()),
+    explanationTranslated: v.optional(v.string()),
+    addedBy: v.optional(v.string()),
   }),
 
   exercises: defineTable({
