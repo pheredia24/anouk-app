@@ -5,18 +5,18 @@ export const LANGUAGES = {
 
 export const UI_STRINGS = {
   welcome: {
-    title: "Welcome to Your Language App",
-    subtitle: "Start learning today!",
-    startButton: "Let's go!",
+    title: "¡Bienvenida a Anouk's Spanish Journey!",
+    subtitle: "Start your Spanish adventure today!",
+    startButton: "¡Vamos!",
   },
   exercise: {
     instructions: {
-      lecture: "Translate the following sentence:",
-      audio: "Listen and select the correct words:",
+      lecture: "Translate this sentence to Spanish:",
+      audio: "Listen and select the correct Spanish words:",
     },
     feedback: {
-      correct: "Excellent!",
-      incorrect: "Try again!",
+      correct: "¡Excelente!",
+      incorrect: "¡Inténtalo de nuevo!",
     },
   },
   profile: {

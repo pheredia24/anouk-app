@@ -20,28 +20,37 @@ export default function ProfileSelection() {
     return <Spinner />;
   }
 
+  // Sort profiles alphabetically by name
+  const sortedProfiles = [...profiles].sort((a, b) => 
+    a.name.localeCompare(b.name, 'es', { sensitivity: 'base' })
+  );
+
   return (
-    <div className="h-screen overflow-hidden flex flex-col bg-white">
+    <div className="h-screen flex flex-col bg-white">
       <div className="pt-16">
         <TopNav />
       </div>
-      <div className="flex-1 flex flex-col pt-8 px-4 pb-12 max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold text-center mb-12">Qui joue ?</h1>
-        <div className="grid grid-cols-2 gap-6">
-          {profiles.map((profile) => (
-            <button
-              key={profile._id}
-              onClick={() => handleProfileSelect(profile._id)}
-              className="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50"
-            >
-              <img
-                src={profile.avatarUrl}
-                alt={profile.name}
-                className="w-32 h-32 rounded-full mb-3"
-              />
-              <span className="font-medium text-lg">{profile.name}</span>
-            </button>
-          ))}
+      <div className="flex-1 flex flex-col pt-8 px-4 pb-12 max-w-6xl mx-auto overflow-hidden">
+        <h1 className="text-2xl font-bold text-center mb-8">¿Quién eres?</h1>
+        <div className="overflow-y-auto flex-1 px-2">
+          <div className="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-6 pb-4">
+            {sortedProfiles.map((profile) => (
+              <button
+                key={profile._id}
+                onClick={() => handleProfileSelect(profile._id)}
+                className="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className="w-20 h-20 md:w-24 md:h-24 mb-2">
+                  <img
+                    src={profile.avatarUrl}
+                    alt={profile.name}
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                </div>
+                <span className="font-medium text-base md:text-lg text-center">{profile.name}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>

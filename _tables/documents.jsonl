@@ -1,0 +1,11 @@
+{"name":"authAccounts","id":10001}
+{"name":"authRateLimits","id":10002}
+{"name":"authRefreshTokens","id":10003}
+{"name":"authSessions","id":10004}
+{"name":"authVerificationCodes","id":10005}
+{"name":"authVerifiers","id":10006}
+{"name":"exercises","id":10007}
+{"name":"userProgress","id":10008}
+{"name":"users","id":10009}
+{"name":"profiles","id":10010}
+{"name":"sentences","id":10011}

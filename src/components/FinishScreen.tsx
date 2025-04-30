@@ -22,23 +22,23 @@ export default function FinishScreen() {
       />
       <div className="w-full max-w-md flex flex-col items-center gap-8">
         <h1 className="text-3xl font-semibold text-center text-[#4B4B4B]">
-          Félicitations ! 🎉
+          ¡Enhorabuena! 🎉
         </h1>
         
         <div className="w-full rounded-lg bg-[rgba(137,226,25,0)] p-6 text-center">
-          <p className="text-lg text-[#4B4B4B]">
-            Ahora que ya conoces tus frases favoritas... estas más que preparada para poner a prueba tu francés en vivo y en directo!
-            <br />
-            <br />
-            Pásalo fenomenal, disfruta del viaje y como tú nos dices siempre... manda muchas fotos!!! 🇫🇷 😘
-          </p>
+            <p className="text-lg text-[#4B4B4B]">
+              You are more than ready to put your newly acquired special Spanish sentences to the test in real life!
+              <br />
+              <br />
+              Ahora solo queda practicar con todos nosotros y disfrutar de Essaouira! 
+            </p>
         </div>
 
         <button
           onClick={() => navigate("/sentences")}
           className="w-full rounded-full bg-[#58CC02] text-white py-3 px-6 text-lg font-semibold hover:bg-[#89E219] transition-colors"
         >
-          Voir toutes les phrases
+          Ver todas las frases
         </button>
       </div>
     </div>
