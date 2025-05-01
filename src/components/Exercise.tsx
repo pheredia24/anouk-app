@@ -90,6 +90,18 @@ export default function Exercise() {
     let correct = false;
     if (currentExercise.mode === "select_one_word") {
       correct = selectedWord?.toLowerCase() === sentence.translation.toLowerCase();
+    } else if (currentExercise.mode === "fill_in_blank") {
+      const words = sentence.translation.split(/\s+/);
+      const blankIndices = sentence.blankWordIndices || [];
+      
+      // Check if we have all the required words
+      if (selectedWords.length === blankIndices.length) {
+        // Check if each selected word matches the word at its corresponding blank position
+        correct = selectedWords.every((selectedWord, index) => {
+          const blankIndex = blankIndices[index];
+          return selectedWord.toLowerCase() === words[blankIndex].toLowerCase();
+        });
+      }
     } else {
       // Process both the answer and expected translation
       const processedAnswer = processWords(selectedWords.join(" ")).join(" ");
@@ -204,16 +216,39 @@ export default function Exercise() {
                 <div className="text-xl font-semibold text-center">
                   {currentExercise.mode === "fill_in_blank" ? (
                     <div>
-                      {sentence.text.split(/\s+/).map((word, index) => (
-                        <span key={index}>
-                          {index > 0 && ' '}
-                          {(sentence.blankWordIndices || []).includes(index) ? (
-                            <span className="px-1 bg-yellow-100 rounded">____</span>
-                          ) : (
-                            word
-                          )}
-                        </span>
-                      ))}
+                      {sentence.translation.split(/\s+/).map((word, index) => {
+                        const isBlank = (sentence.blankWordIndices || []).includes(index);
+                        const blankPosition = isBlank ? (sentence.blankWordIndices || []).indexOf(index) : -1;
+                        const selectedWord = isBlank ? selectedWords[blankPosition] : null;
+                        
+                        return (
+                          <span key={index}>
+                            {index > 0 && ' '}
+                            {isBlank ? (
+                              <span 
+                                className={`px-2 py-1 rounded ${
+                                  selectedWord 
+                                    ? 'bg-blue-100 text-blue-800' 
+                                    : 'bg-yellow-100 text-yellow-800'
+                                }`}
+                                onClick={() => {
+                                  if (selectedWord) {
+                                    // Remove word when clicking on a filled blank
+                                    const newWords = [...selectedWords];
+                                    newWords.splice(blankPosition, 1);
+                                    setSelectedWords(newWords);
+                                  }
+                                }}
+                                style={{ cursor: selectedWord ? 'pointer' : 'default' }}
+                              >
+                                {selectedWord || '____'}
+                              </span>
+                            ) : (
+                              word
+                            )}
+                          </span>
+                        );
+                      })}
                     </div>
                   ) : (
                     sentence.text
@@ -239,16 +274,22 @@ export default function Exercise() {
               />
             ) : currentExercise.mode === "fill_in_blank" ? (
               <>
-                <SelectedWords words={selectedWords} onWordRemove={handleWordRemove} />
                 {!isCorrect && (
                   <WordBank
-                    words={sentence.text.split(/\s+/)
-                      .filter((_, i) => (sentence.blankWordIndices || []).includes(i))
-                      .map((word, i) => ({ word, index: i, isDistractor: false }))
-                      .sort(() => Math.random() - 0.5)}
+                    words={[
+                      ...sentence.translation.split(/\s+/)
+                        .filter((_, i) => (sentence.blankWordIndices || []).includes(i))
+                        .map((word, i) => ({ word, index: i, isDistractor: false })),
+                      ...(sentence.distractorWords || [])
+                        .map((word, i) => ({ 
+                          word, 
+                          index: sentence.translation.split(/\s+/).length + i,
+                          isDistractor: true 
+                        }))
+                    ].sort(() => Math.random() - 0.5)}
                     selectedWords={selectedWords}
                     onWordClick={handleWordClick}
-                    getWordLimit={() => (sentence.blankWordIndices || []).length}
+                    getWordLimit={(word, isDistractor) => isDistractor ? 1 : 1}
                   />
                 )}
               </>
