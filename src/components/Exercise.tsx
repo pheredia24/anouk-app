@@ -225,7 +225,7 @@ export default function Exercise() {
                   {currentExercise.mode === "fill_in_blank" ? (
                     <div>
                       {sentence.translation.split(/\s+/).map((word, index) => {
-                        const blankIndices = sentence.blankWordIndices || [];
+                        const blankIndices = (sentence.blankWordIndices || []).sort((a, b) => a - b);
                         const isBlank = blankIndices.includes(index);
                         const blankIndex = blankIndices.findIndex(i => i === index);
                         const selectedWord = isBlank ? selectedWords[blankIndex] : null;
@@ -293,7 +293,10 @@ export default function Exercise() {
                           index: i, 
                           isDistractor: false 
                         }))
-                        .filter((_, i) => (sentence.blankWordIndices || []).includes(i)),
+                        .filter((_, i) => {
+                          const sortedBlankIndices = (sentence.blankWordIndices || []).sort((a, b) => a - b);
+                          return sortedBlankIndices.includes(i);
+                        }),
                       ...(sentence.distractorWords || [])
                         .map((word, i) => ({ 
                           word, 
@@ -303,10 +306,10 @@ export default function Exercise() {
                     ].sort(() => Math.random() - 0.5)}
                     selectedWords={selectedWords}
                     onWordClick={(word, index) => {
-                      const blankIndices = sentence.blankWordIndices || [];
+                      const sortedBlankIndices = (sentence.blankWordIndices || []).sort((a, b) => a - b);
                       const nextBlankIndex = selectedWords.length;
-                      if (nextBlankIndex < blankIndices.length) {
-                        handleWordClick(word, blankIndices[nextBlankIndex]);
+                      if (nextBlankIndex < sortedBlankIndices.length) {
+                        handleWordClick(word, sortedBlankIndices[nextBlankIndex]);
                       }
                     }}
                     getWordLimit={(word, isDistractor) => isDistractor ? 1 : 1}

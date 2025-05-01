@@ -64,7 +64,7 @@ function reducer(state: ExerciseState, action: ExerciseAction): ExerciseState {
     case 'SET_BLANK_INDICES':
       return {
         ...state,
-        blankIndices: action.indices,
+        blankIndices: [...action.indices].sort((a, b) => a - b),
       };
     case 'SET_CORRECT':
       return {
