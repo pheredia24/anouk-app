@@ -2,6 +2,9 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Doc } from '../../../convex/_generated/dataModel';
 import { GripVertical } from 'lucide-react';
+import { useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import { toast } from 'sonner';
 
 interface Props {
   id: Doc<'exercises'>['_id'];
@@ -11,6 +14,8 @@ interface Props {
 }
 
 export function SortableExerciseItem({ id, sentence, mode, order }: Props) {
+  const updateMode = useMutation(api.exercises.updateMode);
+  
   const {
     attributes,
     listeners,
@@ -24,6 +29,16 @@ export function SortableExerciseItem({ id, sentence, mode, order }: Props) {
     transform: CSS.Transform.toString(transform),
     transition,
     zIndex: isDragging ? 1 : 0,
+  };
+
+  const handleModeChange = async (newMode: typeof mode) => {
+    try {
+      await updateMode({ id, mode: newMode });
+      toast.success('Modo actualizado');
+    } catch (error) {
+      console.error('Error updating mode:', error);
+      toast.error('Error al actualizar el modo');
+    }
   };
 
   return (
@@ -46,9 +61,16 @@ export function SortableExerciseItem({ id, sentence, mode, order }: Props) {
 
       <span className="text-xs font-medium text-gray-500">#{order + 1}</span>
       
-      <span className="text-xs px-1.5 py-0.5 bg-gray-100 rounded">
-        {mode === 'select_one_word' ? 'Select' : mode === 'lecture' ? 'Read' : mode === 'audio' ? 'Audio' : 'A+R'}
-      </span>
+      <select
+        value={mode}
+        onChange={(e) => handleModeChange(e.target.value as typeof mode)}
+        className="text-xs px-1.5 py-0.5 bg-gray-100 rounded border-none focus:ring-1 focus:ring-blue-500"
+      >
+        <option value="lecture">Read</option>
+        <option value="audio">Audio</option>
+        <option value="audio_and_lecture">A+R</option>
+        <option value="select_one_word">Select</option>
+      </select>
 
       <div className="flex-1 min-w-0 flex items-center gap-2">
         <p className="font-medium truncate">{sentence.text}</p>

@@ -71,3 +71,18 @@ export const updateOrder = mutation({
     await ctx.db.patch(args.id, { order: args.order });
   },
 });
+
+export const updateMode = mutation({
+  args: {
+    id: v.id("exercises"),
+    mode: v.union(
+      v.literal("lecture"),
+      v.literal("audio"),
+      v.literal("audio_and_lecture"),
+      v.literal("select_one_word")
+    ),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, { mode: args.mode });
+  },
+});
