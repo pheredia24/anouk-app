@@ -11,9 +11,10 @@ interface WordBankProps {
   selectedWords: string[];
   onWordClick: (word: string, index: number) => void;
   getWordLimit: (word: string, isDistractor: boolean) => number;
+  disabled?: boolean;
 }
 
-const WordBank: FC<WordBankProps> = ({ words, selectedWords, onWordClick, getWordLimit }) => {
+const WordBank: FC<WordBankProps> = ({ words, selectedWords, onWordClick, getWordLimit, disabled = false }) => {
   const countWordOccurrences = (word: string, words: string[]) => {
     return words.filter(w => w === word).length;
   };
@@ -25,7 +26,7 @@ const WordBank: FC<WordBankProps> = ({ words, selectedWords, onWordClick, getWor
       {words.map(({ word, index, isDistractor }) => {
         const selectedCount = countWordOccurrences(word, selectedWords);
         const wordLimit = getWordLimit(word, isDistractor);
-        const isDisabled = selectedCount >= wordLimit;
+        const isDisabled = disabled || selectedCount >= wordLimit;
 
         return (
           <button

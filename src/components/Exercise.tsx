@@ -48,7 +48,7 @@ export default function Exercise() {
 
   const {
     state: { selectedWords, isCorrect, isSpanishExplanation, isSaving, revealedHints, errorCount },
-    actions: { handleWordClick, handleWordRemove, handleCorrect, toggleLanguage, reset, resetWords, startSaving, handleSaveError, handleSaveSuccess, revealHint, incrementError, setSelectedWords }
+    actions: { handleWordClick, handleWordRemove, handleCorrect, toggleLanguage, reset, resetWords, startSaving, handleSaveError, handleSaveSuccess, revealHint, incrementError, setSelectedWords, setBlankIndices }
   } = useExerciseState();
 
   if (!selectedProfileId) {
@@ -75,6 +75,13 @@ export default function Exercise() {
   useEffect(() => {
     didRunRestore.current = false;
   }, [selectedProfileId]);
+
+  useEffect(() => {
+    // Initialize blank indices when sentence changes
+    if (sentence && currentExercise?.mode === 'fill_in_blank') {
+      setBlankIndices(sentence.blankWordIndices || []);
+    }
+  }, [sentence, currentExercise?.mode, setBlankIndices]);
 
   const getWordLimit = useCallback(
     (word: string, isDistractor: boolean) =>
@@ -184,7 +191,8 @@ export default function Exercise() {
 
       // Add the next word if found in the bank
       if (wordInBank) {
-        setSelectedWords([...keptWords, wordInBank.word]);
+        const newWords = [...keptWords, wordInBank.word];
+        setSelectedWords(newWords);
         revealHint();
       }
     }
@@ -217,9 +225,10 @@ export default function Exercise() {
                   {currentExercise.mode === "fill_in_blank" ? (
                     <div>
                       {sentence.translation.split(/\s+/).map((word, index) => {
-                        const isBlank = (sentence.blankWordIndices || []).includes(index);
-                        const blankPosition = isBlank ? (sentence.blankWordIndices || []).indexOf(index) : -1;
-                        const selectedWord = isBlank ? selectedWords[blankPosition] : null;
+                        const blankIndices = sentence.blankWordIndices || [];
+                        const isBlank = blankIndices.includes(index);
+                        const blankIndex = blankIndices.findIndex(i => i === index);
+                        const selectedWord = isBlank ? selectedWords[blankIndex] : null;
                         
                         return (
                           <span key={index}>
@@ -233,9 +242,8 @@ export default function Exercise() {
                                 }`}
                                 onClick={() => {
                                   if (selectedWord) {
-                                    // Remove word when clicking on a filled blank
-                                    const newWords = [...selectedWords];
-                                    newWords.splice(blankPosition, 1);
+                                    // Remove word and all subsequent words
+                                    const newWords = selectedWords.slice(0, blankIndex);
                                     setSelectedWords(newWords);
                                   }
                                 }}
@@ -258,7 +266,9 @@ export default function Exercise() {
               </div>
             )}
 
-            {(currentExercise.mode === "audio" || currentExercise.mode === "audio_and_lecture") && sentence.audioUrl && (
+            {(currentExercise.mode === "audio" || 
+               currentExercise.mode === "audio_and_lecture" || 
+               currentExercise.mode === "select_one_word") && sentence.audioUrl && (
               <AudioPlayer 
                 audioUrl={sentence.audioUrl} 
                 autoPlay={currentExercise.mode === "audio"}
@@ -278,8 +288,12 @@ export default function Exercise() {
                   <WordBank
                     words={[
                       ...sentence.translation.split(/\s+/)
-                        .filter((_, i) => (sentence.blankWordIndices || []).includes(i))
-                        .map((word, i) => ({ word, index: i, isDistractor: false })),
+                        .map((word, i) => ({ 
+                          word, 
+                          index: i, 
+                          isDistractor: false 
+                        }))
+                        .filter((_, i) => (sentence.blankWordIndices || []).includes(i)),
                       ...(sentence.distractorWords || [])
                         .map((word, i) => ({ 
                           word, 
@@ -288,24 +302,31 @@ export default function Exercise() {
                         }))
                     ].sort(() => Math.random() - 0.5)}
                     selectedWords={selectedWords}
-                    onWordClick={handleWordClick}
+                    onWordClick={(word, index) => {
+                      const blankIndices = sentence.blankWordIndices || [];
+                      const nextBlankIndex = selectedWords.length;
+                      if (nextBlankIndex < blankIndices.length) {
+                        handleWordClick(word, blankIndices[nextBlankIndex]);
+                      }
+                    }}
                     getWordLimit={(word, isDistractor) => isDistractor ? 1 : 1}
+                    disabled={selectedWords.length >= (sentence.blankWordIndices || []).length}
                   />
                 )}
               </>
-            ) : (
+            ) : (currentExercise.mode === "lecture" || currentExercise.mode === "audio" || currentExercise.mode === "audio_and_lecture") ? (
               <>
                 <SelectedWords words={selectedWords} onWordRemove={handleWordRemove} />
                 {!isCorrect && (
                   <WordBank
                     words={shuffledWords}
                     selectedWords={selectedWords}
-                    onWordClick={handleWordClick}
+                    onWordClick={(word) => handleWordClick(word)}
                     getWordLimit={getWordLimit}
                   />
                 )}
               </>
-            )}
+            ) : null}
 
             {isCorrect === null || !isCorrect ? (
               <div className="space-y-4">

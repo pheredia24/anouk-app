@@ -1,19 +1,20 @@
 import { useReducer, useCallback } from 'react';
 import { Id } from '../../convex/_generated/dataModel';
 
-interface State {
+interface ExerciseState {
   selectedWords: string[];
   isCorrect: boolean | null;
-  completedExerciseId: Id<'exercises'> | null;
   isSpanishExplanation: boolean;
   isSaving: boolean;
   error: string | null;
+  exerciseId: Id<'exercises'> | null;
   revealedHints: number;
   errorCount: number;
+  blankIndices: number[];
 }
 
-type Action =
-  | { type: 'SELECT_WORD'; word: string }
+type ExerciseAction =
+  | { type: 'SELECT_WORD'; word: string; blankIndex: number }
   | { type: 'REMOVE_WORD'; index: number }
   | { type: 'SET_CORRECT'; exerciseId: Id<'exercises'> }
   | { type: 'TOGGLE_LANGUAGE' }
@@ -24,22 +25,33 @@ type Action =
   | { type: 'SAVE_SUCCESS' }
   | { type: 'REVEAL_HINT' }
   | { type: 'INCREMENT_ERROR' }
-  | { type: 'SET_SELECTED_WORDS'; words: string[] };
+  | { type: 'SET_SELECTED_WORDS'; words: string[] }
+  | { type: 'SET_BLANK_INDICES'; indices: number[] };
 
-const initialState: State = {
+const initialState: ExerciseState = {
   selectedWords: [],
   isCorrect: null,
-  completedExerciseId: null,
   isSpanishExplanation: false,
   isSaving: false,
   error: null,
+  exerciseId: null,
   revealedHints: 0,
   errorCount: 0,
+  blankIndices: [],
 };
 
-function reducer(state: State, action: Action): State {
+function reducer(state: ExerciseState, action: ExerciseAction): ExerciseState {
   switch (action.type) {
     case 'SELECT_WORD':
+      if (state.blankIndices.length > 0) {
+        const nextBlankIndex = state.selectedWords.length;
+        if (nextBlankIndex >= state.blankIndices.length) {
+          return state;
+        }
+        if (state.blankIndices[nextBlankIndex] !== action.blankIndex) {
+          return state;
+        }
+      }
       return {
         ...state,
         selectedWords: [...state.selectedWords, action.word],
@@ -47,13 +59,18 @@ function reducer(state: State, action: Action): State {
     case 'REMOVE_WORD':
       return {
         ...state,
-        selectedWords: state.selectedWords.filter((_, i) => i !== action.index),
+        selectedWords: state.selectedWords.slice(0, action.index),
+      };
+    case 'SET_BLANK_INDICES':
+      return {
+        ...state,
+        blankIndices: action.indices,
       };
     case 'SET_CORRECT':
       return {
         ...state,
         isCorrect: true,
-        completedExerciseId: action.exerciseId,
+        exerciseId: action.exerciseId,
         isSaving: false,
         error: null,
       };
@@ -71,7 +88,7 @@ function reducer(state: State, action: Action): State {
         ...state,
         selectedWords: [],
         isCorrect: null,
-        completedExerciseId: null,
+        exerciseId: null,
         revealedHints: 0,
       };
     case 'START_SAVING':
@@ -115,8 +132,8 @@ function reducer(state: State, action: Action): State {
 export function useExerciseState() {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const handleWordClick = useCallback((word: string, _index: number) => {
-    dispatch({ type: 'SELECT_WORD', word });
+  const handleWordClick = useCallback((word: string, blankIndex?: number) => {
+    dispatch({ type: 'SELECT_WORD', word, blankIndex: blankIndex || 0 });
   }, []);
 
   const handleWordRemove = useCallback((index: number) => {
@@ -163,6 +180,10 @@ export function useExerciseState() {
     dispatch({ type: 'SET_SELECTED_WORDS', words });
   }, []);
 
+  const setBlankIndices = useCallback((indices: number[]) => {
+    dispatch({ type: 'SET_BLANK_INDICES', indices });
+  }, []);
+
   return {
     state,
     actions: {
@@ -178,6 +199,7 @@ export function useExerciseState() {
       revealHint,
       incrementError,
       setSelectedWords,
+      setBlankIndices,
     },
   };
 } 
