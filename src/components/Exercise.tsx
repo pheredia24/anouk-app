@@ -16,6 +16,7 @@ import { useExerciseState } from "../hooks/useExerciseState";
 import { useExerciseData } from "../hooks/useExerciseData";
 import { useConfetti } from "../hooks/useConfetti";
 import { useSoundEffects } from "../hooks/useSoundEffects";
+import { AuthorInfo } from "./exercise/AuthorInfo";
 
 // Helper function to process words and punctuation (duplicated from useExerciseData for direct access)
 function processWords(text: string): string[] {
@@ -181,6 +182,12 @@ export default function Exercise() {
     return <Spinner />;
   }
 
+  const showHintButton = (
+    errorCount >= 3 && 
+    ["lecture", "audio", "audio_and_lecture"].includes(currentExercise.mode) &&
+    revealedHints < processWords(sentence.translation).length
+  );
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <div className="pt-12 px-4 pb-8 flex flex-col items-center">
@@ -190,8 +197,11 @@ export default function Exercise() {
 
           <div className="space-y-6">
             {(currentExercise.mode === "lecture" || currentExercise.mode === "audio_and_lecture" || currentExercise.mode === "select_one_word") && (
-              <div className="text-xl font-semibold text-center">
-                {sentence.text}
+              <div className="flex flex-col items-center gap-2">
+                <div className="text-xl font-semibold text-center">
+                  {sentence.text}
+                </div>
+                <AuthorInfo addedBy={sentence.addedBy} />
               </div>
             )}
 
@@ -233,7 +243,7 @@ export default function Exercise() {
                   {isSaving ? <Spinner fullScreen={false} className="!border-white h-5 w-5" /> : "Enviar"}
                 </button>
 
-                {errorCount >= 5 && sentence && revealedHints < (currentExercise.mode === "select_one_word" ? 1 : processWords(sentence.translation).length) && (
+                {showHintButton && (
                   <button
                     onClick={handleHint}
                     className="w-full rounded-full border-2 border-[#58CC02] text-[#58CC02] py-2 px-6 text-base font-medium hover:bg-[#58CC0210] transition-colors flex items-center justify-center gap-2"

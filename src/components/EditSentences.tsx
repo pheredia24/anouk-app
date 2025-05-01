@@ -1,0 +1,178 @@
+import { useState } from 'react';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
+import TopNav from './TopNav';
+import { toast } from 'sonner';
+import { Doc } from '../../convex/_generated/dataModel';
+import { AuthorInfo } from './exercise/AuthorInfo';
+
+interface EditableSentenceProps {
+  sentence: Doc<'sentences'>;
+  onSave: () => void;
+}
+
+function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [text, setText] = useState(sentence.text);
+  const [translation, setTranslation] = useState(sentence.translation);
+  const [explanation, setExplanation] = useState(sentence.explanation || '');
+  const [explanationTranslated, setExplanationTranslated] = useState(sentence.explanationTranslated || '');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const updateSentence = useMutation(api.sentences.update);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await updateSentence({
+        id: sentence._id,
+        text,
+        translation,
+        explanation,
+        explanationTranslated,
+      });
+      toast.success('¡Frase actualizada!');
+      setIsEditing(false);
+      onSave();
+    } catch (error) {
+      toast.error('Error al actualizar la frase');
+      console.error(error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (!isEditing) {
+    return (
+      <div className="p-4 border rounded-lg space-y-2">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="font-medium">{sentence.text}</p>
+            <p className="text-gray-600">{sentence.translation}</p>
+          </div>
+          <AuthorInfo addedBy={sentence.addedBy} />
+        </div>
+        
+        {(sentence.explanation || sentence.explanationTranslated) && (
+          <div className="pt-2 border-t space-y-1">
+            {sentence.explanation && (
+              <p className="text-sm text-gray-600">
+                <span className="font-medium">EN:</span> {sentence.explanation}
+              </p>
+            )}
+            {sentence.explanationTranslated && (
+              <p className="text-sm text-gray-600">
+                <span className="font-medium">ES:</span> {sentence.explanationTranslated}
+              </p>
+            )}
+          </div>
+        )}
+
+        <button
+          onClick={() => setIsEditing(true)}
+          className="mt-2 text-sm font-medium text-blue-500 hover:text-blue-600"
+        >
+          Editar
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-4 border rounded-lg space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          English Text
+        </label>
+        <input
+          type="text"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="English text"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Spanish Translation
+        </label>
+        <input
+          type="text"
+          value={translation}
+          onChange={(e) => setTranslation(e.target.value)}
+          className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Spanish translation"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Explanation (English)
+        </label>
+        <textarea
+          value={explanation}
+          onChange={(e) => setExplanation(e.target.value)}
+          className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          rows={2}
+          placeholder="English explanation"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Explicación (Español)
+        </label>
+        <textarea
+          value={explanationTranslated}
+          onChange={(e) => setExplanationTranslated(e.target.value)}
+          className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          rows={2}
+          placeholder="Spanish explanation"
+        />
+      </div>
+
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handleSave}
+          disabled={isSaving}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+        >
+          {isSaving ? 'Guardando...' : 'Guardar'}
+        </button>
+        <button
+          onClick={() => setIsEditing(false)}
+          disabled={isSaving}
+          className="px-4 py-2 text-gray-600 hover:text-gray-800"
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default function EditSentences() {
+  const sentences = useQuery(api.sentences.listAll) || [];
+
+  return (
+    <div className="min-h-screen flex flex-col bg-white">
+      <div className="pt-12 px-4 pb-8 flex flex-col items-center">
+        <TopNav />
+        <div className="w-full max-w-2xl">
+          <h1 className="text-2xl font-bold text-center mb-8">Editar Frases</h1>
+          
+          <div className="space-y-4">
+            {sentences.map((sentence) => (
+              <EditableSentence
+                key={sentence._id}
+                sentence={sentence}
+                onSave={() => {}}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+} 

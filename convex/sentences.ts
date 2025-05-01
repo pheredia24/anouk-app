@@ -31,6 +31,20 @@ export const create = mutation({
   },
 });
 
+export const update = mutation({
+  args: {
+    id: v.id("sentences"),
+    text: v.string(),
+    translation: v.string(),
+    explanation: v.optional(v.string()),
+    explanationTranslated: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const { id, ...updates } = args;
+    await ctx.db.patch(id, updates);
+  },
+});
+
 export type Sentence = {
   id?: string;
   source: string;

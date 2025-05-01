@@ -5,6 +5,7 @@ import { GripVertical } from 'lucide-react';
 import { useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { toast } from 'sonner';
+import { AuthorInfo } from './AuthorInfo';
 
 interface Props {
   id: Doc<'exercises'>['_id'];
@@ -77,6 +78,8 @@ export function SortableExerciseItem({ id, sentence, mode, order }: Props) {
         <span className="text-gray-400">·</span>
         <p className="text-gray-500 truncate">{sentence.translation}</p>
       </div>
+
+      <AuthorInfo addedBy={sentence.addedBy} />
     </div>
   );
 } 
