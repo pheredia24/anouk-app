@@ -25,6 +25,7 @@ export const create = mutation({
     explanation: v.optional(v.string()),
     explanationTranslated: v.optional(v.string()),
     addedBy: v.optional(v.string()),
+    blankWordIndices: v.optional(v.array(v.number())),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("sentences", args);
@@ -38,6 +39,7 @@ export const update = mutation({
     translation: v.string(),
     explanation: v.optional(v.string()),
     explanationTranslated: v.optional(v.string()),
+    blankWordIndices: v.optional(v.array(v.number())),
   },
   handler: async (ctx, args) => {
     const { id, ...updates } = args;

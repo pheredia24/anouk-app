@@ -5,6 +5,11 @@ import TopNav from './TopNav';
 import { toast } from 'sonner';
 import { Id } from '../../convex/_generated/dataModel';
 
+// Helper function to split sentence into words
+function getWords(text: string): string[] {
+  return text.split(/\s+/);
+}
+
 export default function CreateSentence() {
   // Sentence form state
   const [text, setText] = useState('');
@@ -14,11 +19,12 @@ export default function CreateSentence() {
   const [audioUrl, setAudioUrl] = useState('');
   const [distractorWords, setDistractorWords] = useState('');
   const [addedBy, setAddedBy] = useState('');
+  const [blankWordIndices, setBlankWordIndices] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Exercise form state
   const [selectedSentenceId, setSelectedSentenceId] = useState<Id<"sentences"> | null>(null);
-  const [exerciseMode, setExerciseMode] = useState<'lecture' | 'audio' | 'audio_and_lecture' | 'select_one_word'>('lecture');
+  const [exerciseMode, setExerciseMode] = useState<'lecture' | 'audio' | 'audio_and_lecture' | 'select_one_word' | 'fill_in_blank'>('lecture');
   const [isSubmittingExercise, setIsSubmittingExercise] = useState(false);
 
   // Fetch all sentences for exercise creation
@@ -26,6 +32,14 @@ export default function CreateSentence() {
   
   const createSentence = useMutation(api.sentences.create);
   const createExercise = useMutation(api.exercises.create);
+
+  const toggleBlankWord = (index: number) => {
+    setBlankWordIndices(prev => 
+      prev.includes(index)
+        ? prev.filter(i => i !== index)
+        : [...prev, index]
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +53,8 @@ export default function CreateSentence() {
         explanationTranslated,
         audioUrl,
         addedBy,
-        distractorWords: distractorWords.split(',').map(w => w.trim()).filter(Boolean)
+        distractorWords: distractorWords.split(',').map(w => w.trim()).filter(Boolean),
+        blankWordIndices,
       });
 
       // Reset form
@@ -50,6 +65,7 @@ export default function CreateSentence() {
       setAudioUrl('');
       setDistractorWords('');
       setAddedBy('');
+      setBlankWordIndices([]);
 
       toast.success('¡Frase creada con éxito!');
     } catch (error) {
@@ -85,6 +101,8 @@ export default function CreateSentence() {
     }
   };
 
+  const translationWords = getWords(text);
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <div className="pt-12 px-4 pb-8 flex flex-col items-center">
@@ -97,15 +115,36 @@ export default function CreateSentence() {
               <label htmlFor="translation" className="block text-sm font-medium text-gray-700 mb-1">
                 Texto en Español
               </label>
-              <input
-                type="text"
-                id="translation"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#58CC02] focus:border-transparent"
-                placeholder="Escribe la frase en español"
-              />
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  id="translation"
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#58CC02] focus:border-transparent"
+                  placeholder="Escribe la frase en español"
+                />
+                <div className="flex flex-wrap gap-2">
+                  {translationWords.map((word, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => toggleBlankWord(index)}
+                      className={`px-2 py-1 rounded text-sm transition-colors ${
+                        blankWordIndices.includes(index)
+                          ? 'bg-yellow-100 hover:bg-yellow-200'
+                          : 'hover:bg-gray-100'
+                      }`}
+                    >
+                      {word}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-sm text-gray-500">
+                  Click on words to mark them as blanks for fill-in-the-blank exercises
+                </p>
+              </div>
             </div>
 
             <div>
@@ -242,6 +281,7 @@ export default function CreateSentence() {
                   <option value="audio">Audio</option>
                   <option value="audio_and_lecture">Audio y Lectura</option>
                   <option value="select_one_word">Seleccionar Palabra</option>
+                  <option value="fill_in_blank">Completar Espacios</option>
                 </select>
               </div>
 

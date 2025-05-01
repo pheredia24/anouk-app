@@ -11,6 +11,7 @@ const applicationTables = {
     explanation: v.optional(v.string()),
     explanationTranslated: v.optional(v.string()),
     addedBy: v.optional(v.string()),
+    blankWordIndices: v.optional(v.array(v.number())),
   }),
 
   exercises: defineTable({
@@ -19,7 +20,8 @@ const applicationTables = {
       v.literal("lecture"),
       v.literal("audio"),
       v.literal("audio_and_lecture"),
-      v.literal("select_one_word")
+      v.literal("select_one_word"),
+      v.literal("fill_in_blank")
     ),
     order: v.number(),
   }).index("by_order", ["order"]),

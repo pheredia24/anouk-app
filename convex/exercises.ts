@@ -32,7 +32,8 @@ export const create = mutation({
       v.literal("lecture"),
       v.literal("audio"),
       v.literal("audio_and_lecture"),
-      v.literal("select_one_word")
+      v.literal("select_one_word"),
+      v.literal("fill_in_blank")
     ),
   },
   handler: async (ctx, args) => {
@@ -79,7 +80,8 @@ export const updateMode = mutation({
       v.literal("lecture"),
       v.literal("audio"),
       v.literal("audio_and_lecture"),
-      v.literal("select_one_word")
+      v.literal("select_one_word"),
+      v.literal("fill_in_blank")
     ),
   },
   handler: async (ctx, args) => {

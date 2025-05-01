@@ -71,6 +71,7 @@ export function SortableExerciseItem({ id, sentence, mode, order }: Props) {
         <option value="audio">Audio</option>
         <option value="audio_and_lecture">A+R</option>
         <option value="select_one_word">Select</option>
+        <option value="fill_in_blank">Fill</option>
       </select>
 
       <div className="flex-1 min-w-0 flex items-center gap-2">

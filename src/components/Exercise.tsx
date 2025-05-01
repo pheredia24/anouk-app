@@ -196,16 +196,34 @@ export default function Exercise() {
           <ProgressBar current={currentIndex + 1} total={exercises.length} />
 
           <div className="space-y-6">
-            {(currentExercise.mode === "lecture" || currentExercise.mode === "audio_and_lecture" || currentExercise.mode === "select_one_word") && (
+            {(currentExercise.mode === "lecture" || 
+               currentExercise.mode === "audio_and_lecture" || 
+               currentExercise.mode === "select_one_word" ||
+               currentExercise.mode === "fill_in_blank") && (
               <div className="flex flex-col items-center gap-2">
                 <div className="text-xl font-semibold text-center">
-                  {sentence.text}
+                  {currentExercise.mode === "fill_in_blank" ? (
+                    <div>
+                      {sentence.text.split(/\s+/).map((word, index) => (
+                        <span key={index}>
+                          {index > 0 && ' '}
+                          {(sentence.blankWordIndices || []).includes(index) ? (
+                            <span className="px-1 bg-yellow-100 rounded">____</span>
+                          ) : (
+                            word
+                          )}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    sentence.text
+                  )}
                 </div>
                 <AuthorInfo addedBy={sentence.addedBy} />
               </div>
             )}
 
-            {(currentExercise.mode === "audio" || currentExercise.mode === "audio_and_lecture" || currentExercise.mode === "select_one_word") && sentence.audioUrl && (
+            {(currentExercise.mode === "audio" || currentExercise.mode === "audio_and_lecture") && sentence.audioUrl && (
               <AudioPlayer 
                 audioUrl={sentence.audioUrl} 
                 autoPlay={currentExercise.mode === "audio"}
@@ -219,6 +237,21 @@ export default function Exercise() {
                 onSelect={setSelectedWord}
                 selectedWord={selectedWord}
               />
+            ) : currentExercise.mode === "fill_in_blank" ? (
+              <>
+                <SelectedWords words={selectedWords} onWordRemove={handleWordRemove} />
+                {!isCorrect && (
+                  <WordBank
+                    words={sentence.text.split(/\s+/)
+                      .filter((_, i) => (sentence.blankWordIndices || []).includes(i))
+                      .map((word, i) => ({ word, index: i, isDistractor: false }))
+                      .sort(() => Math.random() - 0.5)}
+                    selectedWords={selectedWords}
+                    onWordClick={handleWordClick}
+                    getWordLimit={() => (sentence.blankWordIndices || []).length}
+                  />
+                )}
+              </>
             ) : (
               <>
                 <SelectedWords words={selectedWords} onWordRemove={handleWordRemove} />

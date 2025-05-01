@@ -11,12 +11,18 @@ interface EditableSentenceProps {
   onSave: () => void;
 }
 
+// Helper function to split sentence into words
+function getWords(text: string): string[] {
+  return text.split(/\s+/);
+}
+
 function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState(sentence.text);
   const [translation, setTranslation] = useState(sentence.translation);
   const [explanation, setExplanation] = useState(sentence.explanation || '');
   const [explanationTranslated, setExplanationTranslated] = useState(sentence.explanationTranslated || '');
+  const [blankWordIndices, setBlankWordIndices] = useState<number[]>(sentence.blankWordIndices || []);
   const [isSaving, setIsSaving] = useState(false);
 
   const updateSentence = useMutation(api.sentences.update);
@@ -30,6 +36,7 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
         translation,
         explanation,
         explanationTranslated,
+        blankWordIndices,
       });
       toast.success('¡Frase actualizada!');
       setIsEditing(false);
@@ -42,13 +49,33 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
     }
   };
 
+  const toggleBlankWord = (index: number) => {
+    setBlankWordIndices(prev => 
+      prev.includes(index)
+        ? prev.filter(i => i !== index)
+        : [...prev, index]
+    );
+  };
+
   if (!isEditing) {
     return (
       <div className="p-4 border rounded-lg space-y-2">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="font-medium">{sentence.text}</p>
-            <p className="text-gray-600">{sentence.translation}</p>
+            <p className="text-gray-600">
+              {getWords(sentence.translation).map((word, index) => {
+                const isBlank = (sentence.blankWordIndices || []).includes(index);
+                return (
+                  <span key={index}>
+                    {index > 0 && ' '}
+                    <span className={isBlank ? 'px-1 bg-yellow-100 rounded' : ''}>
+                      {word}
+                    </span>
+                  </span>
+                );
+              })}
+            </p>
           </div>
           <AuthorInfo addedBy={sentence.addedBy} />
         </div>
@@ -78,6 +105,8 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
     );
   }
 
+  const translationWords = getWords(translation);
+
   return (
     <div className="p-4 border rounded-lg space-y-4">
       <div>
@@ -97,13 +126,34 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Spanish Translation
         </label>
-        <input
-          type="text"
-          value={translation}
-          onChange={(e) => setTranslation(e.target.value)}
-          className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Spanish translation"
-        />
+        <div className="space-y-2">
+          <input
+            type="text"
+            value={translation}
+            onChange={(e) => setTranslation(e.target.value)}
+            className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Spanish translation"
+          />
+          <div className="flex flex-wrap gap-2">
+            {translationWords.map((word, index) => (
+              <button
+                key={index}
+                onClick={() => toggleBlankWord(index)}
+                className={`px-2 py-1 rounded text-sm transition-colors ${
+                  blankWordIndices.includes(index)
+                    ? 'bg-yellow-100 hover:bg-yellow-200'
+                    : 'hover:bg-gray-100'
+                }`}
+                type="button"
+              >
+                {word}
+              </button>
+            ))}
+          </div>
+          <p className="text-sm text-gray-500">
+            Click on words to mark them as blanks for fill-in-the-blank exercises
+          </p>
+        </div>
       </div>
 
       <div>
