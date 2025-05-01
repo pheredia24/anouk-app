@@ -17,35 +17,18 @@ async function createExercises() {
     }
     console.log('Cleared existing exercises');
 
-    // Create exercises - first all audio exercises, then all lecture exercises
-    const totalSentences = sentences.length;
-    
-    // Create audio exercises (order 1 to totalSentences)
-    console.log('\nCreating audio exercises...');
+    // Create one combined exercise per sentence
+    console.log('\nCreating combined exercises...');
     for (let i = 0; i < sentences.length; i++) {
         const sentence = sentences[i];
-        const order = i + 1; // Orders 1 to totalSentences
+        const order = i + 1;
         
         await client.mutation("exercises:create", {
             sentenceId: sentence._id,
-            mode: "audio",
+            mode: "audio_and_lecture",
             order: order
         });
-        console.log(`Created audio exercise for "${sentence.text}" (order: ${order})`);
-    }
-
-    // Create lecture exercises (order totalSentences+1 to totalSentences*2)
-    console.log('\nCreating lecture exercises...');
-    for (let i = 0; i < sentences.length; i++) {
-        const sentence = sentences[i];
-        const order = totalSentences + i + 1; // Orders (totalSentences+1) to (totalSentences*2)
-        
-        await client.mutation("exercises:create", {
-            sentenceId: sentence._id,
-            mode: "lecture",
-            order: order
-        });
-        console.log(`Created lecture exercise for "${sentence.text}" (order: ${order})`);
+        console.log(`Created combined exercise for "${sentence.text}" (order: ${order})`);
     }
     
     console.log('\nAll exercises created successfully in development!');

@@ -15,7 +15,12 @@ const applicationTables = {
 
   exercises: defineTable({
     sentenceId: v.id("sentences"),
-    mode: v.union(v.literal("lecture"), v.literal("audio")),
+    mode: v.union(
+      v.literal("lecture"),
+      v.literal("audio"),
+      v.literal("audio_and_lecture"),
+      v.literal("select_one_word")
+    ),
     order: v.number(),
   }).index("by_order", ["order"]),
 

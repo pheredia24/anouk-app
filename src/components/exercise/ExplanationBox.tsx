@@ -21,10 +21,10 @@ const ExplanationBox: FC<ExplanationBoxProps> = ({
         <button
           onClick={onToggleLanguage}
           className="absolute bottom-2 right-2 py-0 px-1 rounded-full bg-white shadow-md hover:shadow-lg opacity-80"
-          aria-label={isSpanishExplanation ? "Voir en français" : "Ver en español"}
+          aria-label={isSpanishExplanation ? "Ver en inglés" : "Ver en español"}
         >
           <span className="text-xl">
-            {isSpanishExplanation ? "🇫🇷" : "🇪🇸"}
+            {isSpanishExplanation ? "🇬🇧" : "🇪🇸"}
           </span>
         </button>
       )}

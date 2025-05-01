@@ -6,6 +6,7 @@ import Exercise from "./components/Exercise";
 import ExerciseList from "./components/ExerciseList";
 import AdminPanel from "./components/AdminPanel";
 import FinishScreen from "./components/FinishScreen";
+import CreateSentence from "./components/CreateSentence";
 import { Toaster } from "sonner";
 
 export default function App() {
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/sentences" element={<ExerciseList />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/finish" element={<FinishScreen />} />
+        <Route path="/create" element={<CreateSentence />} />
       </Routes>
     </Router>
   );

@@ -4,8 +4,10 @@ import { api } from "../../convex/_generated/api";
 import { Doc } from "../../convex/_generated/dataModel";
 import TopNav from "./TopNav";
 import Spinner from "./Spinner";
+import { useNavigate } from "react-router-dom";
 
 export default function ExerciseList() {
+  const navigate = useNavigate();
   const [expandedSentenceId, setExpandedSentenceId] = useState<string | null>(null);
   const [isSpanishExplanation, setIsSpanishExplanation] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -35,7 +37,15 @@ export default function ExerciseList() {
         <TopNav />
       </div>
       <div className="flex-1 flex flex-col pt-24 px-4 pb-12 max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold text-center mb-12">Toutes les phrases</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-bold">Todas las frases</h1>
+          <button
+            onClick={() => navigate("/create")}
+            className="rounded-full bg-[#58CC02] text-white py-2 px-4 text-base font-semibold hover:bg-[#89E219] transition-colors"
+          >
+            Añadir frase
+          </button>
+        </div>
         
         {/* Hidden audio element for playing sounds */}
         <audio ref={audioRef} className="hidden" />
@@ -67,11 +77,11 @@ export default function ExerciseList() {
                 {isExpanded && (
                   <div className="border-t px-4 py-3 bg-gray-50">
                     {/* Explanation */}
-                    {(sentence.explanation || sentence.explanation_spanish) && (
+                    {(sentence.explanation || sentence.explanationTranslated) && (
                       <div>
                         <div className="text-gray-700 text-lg leading-relaxed">
                           {isSpanishExplanation
-                            ? sentence.explanation_spanish
+                            ? sentence.explanationTranslated
                             : sentence.explanation}
                         </div>
                       </div>
@@ -84,7 +94,7 @@ export default function ExerciseList() {
                         <button
                           onClick={() => sentence.audioUrl && handleReplay(sentence.audioUrl)}
                           className="py-0 px-1 rounded-full bg-white shadow-md hover:shadow-lg opacity-80"
-                          aria-label="Écouter l'audio"
+                          aria-label="Escuchar el audio"
                         >
                           <span className="text-lg">
                             🔊
@@ -93,17 +103,17 @@ export default function ExerciseList() {
                       )}
 
                       {/* Language toggle */}
-                      {sentence.explanation && sentence.explanation_spanish && (
+                      {sentence.explanation && sentence.explanationTranslated && (
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             setIsSpanishExplanation(prev => !prev);
                           }}
                           className="py-0 px-1 rounded-full bg-white shadow-md hover:shadow-lg opacity-80"
-                          aria-label={isSpanishExplanation ? "Voir en français" : "Ver en español"}
+                          aria-label={isSpanishExplanation ? "Ver en inglés" : "Ver en español"}
                         >
                           <span className="text-xl">
-                            {isSpanishExplanation ? "🇫🇷" : "🇪🇸"}
+                            {isSpanishExplanation ? "🇬🇧" : "🇪🇸"}
                           </span>
                         </button>
                       )}

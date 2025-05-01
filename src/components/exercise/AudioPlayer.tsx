@@ -26,9 +26,9 @@ const AudioPlayer: FC<AudioPlayerProps> = ({ audioUrl, autoPlay = true }) => {
       <button
         onClick={handleReplay}
         className="w-full py-3 px-6 rounded-full bg-[#1CB0F6] text-white hover:bg-opacity-90 flex items-center justify-center gap-2 text-lg font-semibold"
-        aria-label="Réécouter l'audio"
+        aria-label="Escuchar el audio"
       >
-        🔊 Écoute et traduis
+        🔊 Escucha y traduce
       </button>
     </div>
   );
