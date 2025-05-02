@@ -24,6 +24,7 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
   const [explanationTranslated, setExplanationTranslated] = useState(sentence.explanationTranslated || '');
   const [blankWordIndices, setBlankWordIndices] = useState<number[]>(sentence.blankWordIndices || []);
   const [type, setType] = useState<"anecdote" | "classic_sentence" | "favourite_sentence" | "">(sentence.type || "");
+  const [distractorWords, setDistractorWords] = useState<string[]>(sentence.distractorWords || []);
   const [isSaving, setIsSaving] = useState(false);
 
   const updateSentence = useMutation(api.sentences.update);
@@ -39,6 +40,7 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
         explanationTranslated,
         blankWordIndices,
         type: type || undefined,
+        distractorWords,
       });
       toast.success('¡Frase actualizada!');
       setIsEditing(false);
@@ -57,6 +59,12 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
         ? prev.filter(i => i !== index)
         : [...prev, index]
     );
+  };
+
+  const handleDistractorWordsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    // Split by commas and trim each word
+    const words = e.target.value.split(',').map(word => word.trim()).filter(word => word !== '');
+    setDistractorWords(words);
   };
 
   if (!isEditing) {
@@ -83,6 +91,11 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
                 Tipo: {sentence.type === 'anecdote' ? 'Anécdota' : 
                        sentence.type === 'classic_sentence' ? 'Frase Clásica' : 
                        'Frase Favorita'}
+              </p>
+            )}
+            {sentence.distractorWords && sentence.distractorWords.length > 0 && (
+              <p className="text-sm text-gray-500 mt-1">
+                Palabras distractoras: {sentence.distractorWords.join(', ')}
               </p>
             )}
           </div>
@@ -163,6 +176,22 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
             Click on words to mark them as blanks for fill-in-the-blank exercises
           </p>
         </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Palabras Distractoras
+        </label>
+        <textarea
+          value={distractorWords.join(', ')}
+          onChange={handleDistractorWordsChange}
+          className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          rows={2}
+          placeholder="Escribe palabras distractoras separadas por comas"
+        />
+        <p className="text-sm text-gray-500 mt-1">
+          Escribe palabras distractoras separadas por comas para ejercicios de selección múltiple
+        </p>
       </div>
 
       <div>
