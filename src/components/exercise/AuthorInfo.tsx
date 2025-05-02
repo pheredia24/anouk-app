@@ -15,7 +15,7 @@ export function AuthorInfo({ addedBy }: Props) {
   if (!profile) {
     return (
       <div className="flex items-center gap-1.5">
-        <span className="text-xs text-gray-400">Added by</span>
+        <span className="text-xs text-gray-400">Añadida por</span>
         <div className="w-4 h-4 rounded-full bg-gray-200" />
         <span className="text-xs text-gray-500">{addedBy}</span>
       </div>

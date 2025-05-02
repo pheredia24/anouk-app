@@ -40,9 +40,12 @@ export const DIFFICULTY_LEVELS = {
 } as const;
 
 export const SENTENCE_TYPE_INTROS = {
-  anecdote: "Un recuerdo bonito que tengo con Anouk es…",
+  anecdote: "Un recuerdo bonito que {{addedBy}} tiene con Anouk es…",
   classic_sentence: "En el grupo usamos esta expresión para decir…",
-  favourite_sentence: "La palabra que esta persona cree que Anouk debe conocer es…",
+  favourite_sentence: {
+    single: "La palabra que {{addedBy}} cree que Anouk debe conocer es…",
+    multiple: "La frase que {{addedBy}} cree que Anouk debe conocer es…"
+  },
 } as const;
 
 export type SentenceType = keyof typeof SENTENCE_TYPE_INTROS; 

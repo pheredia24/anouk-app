@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useRef, useEffect, useCallback, useState } from "react";
 import { toast } from "sonner";
@@ -18,6 +18,32 @@ import { useConfetti } from "../hooks/useConfetti";
 import { useSoundEffects } from "../hooks/useSoundEffects";
 import { AuthorInfo } from "./exercise/AuthorInfo";
 import { SENTENCE_TYPE_INTROS } from "../lib/constants";
+import ReactDOMServer from "react-dom/server";
+
+// Inline author component for the intro text
+function AuthorInline({ name, avatarUrl, text, type }: { name: string; avatarUrl: string; text: string; type: "anecdote" | "favourite_sentence" }) {
+  let introText = type === "anecdote" 
+    ? SENTENCE_TYPE_INTROS.anecdote
+    : SENTENCE_TYPE_INTROS.favourite_sentence[text.trim().split(/\s+/).length === 1 ? 'single' : 'multiple'];
+    
+  const parts = introText.split('{{addedBy}}');
+  
+  return (
+    <span>
+      {parts[0]}
+      <span className="inline-flex items-center gap-1 align-middle" style={{ verticalAlign: 'middle', marginBottom: '4px' }}>
+        <img
+          src={avatarUrl}
+          alt={name}
+          className="w-5 h-5 rounded-full"
+          style={{ verticalAlign: 'middle' }}
+        />
+        <span className="align-middle">{name}</span>
+      </span>
+      {parts[1]}
+    </span>
+  );
+}
 
 // Helper function to process words and punctuation (duplicated from useExerciseData for direct access)
 function processWords(text: string): string[] {
@@ -43,6 +69,7 @@ export default function Exercise() {
   const didRunRestore = useRef(false);
   const fireConfetti = useConfetti(200);
   const { playCorrect, playIncorrect } = useSoundEffects();
+  const profiles = useQuery(api.profiles.list) || [];
 
   const selectedProfileId = useAppStore((s) => s.selectedProfileId);
   const saveProgress = useMutation(api.userProgress.saveProgress);
@@ -223,9 +250,18 @@ export default function Exercise() {
                currentExercise.mode === "fill_in_blank") && (
               <div className="flex flex-col items-center gap-2">
                 <div className="text-xl font-semibold text-center">
-                  {sentence.type && SENTENCE_TYPE_INTROS[sentence.type] && (
+                  {sentence.type && (
                     <div className="mb-6 text-gray-600 text-base font-normal italic">
-                      {SENTENCE_TYPE_INTROS[sentence.type]}
+                      {(sentence.type === 'favourite_sentence' || sentence.type === 'anecdote') && sentence.addedBy ? (
+                        <AuthorInline 
+                          name={sentence.addedBy} 
+                          avatarUrl={profiles.find(p => p.name === sentence.addedBy)?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${sentence.addedBy}`}
+                          text={sentence.translation}
+                          type={sentence.type}
+                        />
+                      ) : (
+                        SENTENCE_TYPE_INTROS.classic_sentence
+                      )}
                     </div>
                   )}
                   {currentExercise.mode === "fill_in_blank" ? (
@@ -268,7 +304,9 @@ export default function Exercise() {
                     sentence.text
                   )}
                 </div>
-                <AuthorInfo addedBy={sentence.addedBy} />
+                {sentence.type === 'classic_sentence' && (
+                  <AuthorInfo addedBy={sentence.addedBy} />
+                )}
               </div>
             )}
 
