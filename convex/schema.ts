@@ -12,6 +12,11 @@ const applicationTables = {
     explanationTranslated: v.optional(v.string()),
     addedBy: v.optional(v.string()),
     blankWordIndices: v.optional(v.array(v.number())),
+    type: v.optional(v.union(
+      v.literal("anecdote"),
+      v.literal("classic_sentence"),
+      v.literal("favourite_sentence")
+    )),
   }),
 
   exercises: defineTable({

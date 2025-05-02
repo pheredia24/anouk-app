@@ -20,6 +20,7 @@ export default function CreateSentence() {
   const [distractorWords, setDistractorWords] = useState('');
   const [addedBy, setAddedBy] = useState('');
   const [blankWordIndices, setBlankWordIndices] = useState<number[]>([]);
+  const [type, setType] = useState<"anecdote" | "classic_sentence" | "favourite_sentence" | "">("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Exercise form state
@@ -55,6 +56,7 @@ export default function CreateSentence() {
         addedBy,
         distractorWords: distractorWords.split(',').map(w => w.trim()).filter(Boolean),
         blankWordIndices,
+        type: type || undefined,
       });
 
       // Reset form
@@ -66,6 +68,7 @@ export default function CreateSentence() {
       setDistractorWords('');
       setAddedBy('');
       setBlankWordIndices([]);
+      setType('');
 
       toast.success('¡Frase creada con éxito!');
     } catch (error) {
@@ -231,6 +234,23 @@ export default function CreateSentence() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#58CC02] focus:border-transparent"
                 placeholder="Tu nombre"
               />
+            </div>
+
+            <div>
+              <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
+                Tipo de Frase
+              </label>
+              <select
+                id="type"
+                value={type}
+                onChange={(e) => setType(e.target.value as typeof type)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#58CC02] focus:border-transparent"
+              >
+                <option value="">Selecciona un tipo (opcional)</option>
+                <option value="anecdote">Anécdota</option>
+                <option value="classic_sentence">Frase Clásica</option>
+                <option value="favourite_sentence">Frase Favorita</option>
+              </select>
             </div>
 
             <button

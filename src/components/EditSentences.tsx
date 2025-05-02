@@ -23,6 +23,7 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
   const [explanation, setExplanation] = useState(sentence.explanation || '');
   const [explanationTranslated, setExplanationTranslated] = useState(sentence.explanationTranslated || '');
   const [blankWordIndices, setBlankWordIndices] = useState<number[]>(sentence.blankWordIndices || []);
+  const [type, setType] = useState<"anecdote" | "classic_sentence" | "favourite_sentence" | "">(sentence.type || "");
   const [isSaving, setIsSaving] = useState(false);
 
   const updateSentence = useMutation(api.sentences.update);
@@ -37,6 +38,7 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
         explanation,
         explanationTranslated,
         blankWordIndices,
+        type: type || undefined,
       });
       toast.success('¡Frase actualizada!');
       setIsEditing(false);
@@ -76,6 +78,13 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
                 );
               })}
             </p>
+            {sentence.type && (
+              <p className="text-sm text-gray-500 mt-1">
+                Tipo: {sentence.type === 'anecdote' ? 'Anécdota' : 
+                       sentence.type === 'classic_sentence' ? 'Frase Clásica' : 
+                       'Frase Favorita'}
+              </p>
+            )}
           </div>
           <AuthorInfo addedBy={sentence.addedBy} />
         </div>
@@ -180,6 +189,22 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
           rows={2}
           placeholder="Spanish explanation"
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Tipo de Frase
+        </label>
+        <select
+          value={type}
+          onChange={(e) => setType(e.target.value as typeof type)}
+          className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="">Selecciona un tipo (opcional)</option>
+          <option value="anecdote">Anécdota</option>
+          <option value="classic_sentence">Frase Clásica</option>
+          <option value="favourite_sentence">Frase Favorita</option>
+        </select>
       </div>
 
       <div className="flex items-center gap-2">

@@ -17,6 +17,7 @@ import { useExerciseData } from "../hooks/useExerciseData";
 import { useConfetti } from "../hooks/useConfetti";
 import { useSoundEffects } from "../hooks/useSoundEffects";
 import { AuthorInfo } from "./exercise/AuthorInfo";
+import { SENTENCE_TYPE_INTROS } from "../lib/constants";
 
 // Helper function to process words and punctuation (duplicated from useExerciseData for direct access)
 function processWords(text: string): string[] {
@@ -222,6 +223,11 @@ export default function Exercise() {
                currentExercise.mode === "fill_in_blank") && (
               <div className="flex flex-col items-center gap-2">
                 <div className="text-xl font-semibold text-center">
+                  {sentence.type && SENTENCE_TYPE_INTROS[sentence.type] && (
+                    <div className="mb-6 text-gray-600 text-base font-normal italic">
+                      {SENTENCE_TYPE_INTROS[sentence.type]}
+                    </div>
+                  )}
                   {currentExercise.mode === "fill_in_blank" ? (
                     <div>
                       {sentence.translation.split(/\s+/).map((word, index) => {
