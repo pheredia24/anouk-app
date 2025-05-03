@@ -70,6 +70,7 @@ export default function Exercise() {
   const fireConfetti = useConfetti(200);
   const { playCorrect, playIncorrect } = useSoundEffects();
   const profiles = useQuery(api.profiles.list) || [];
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const selectedProfileId = useAppStore((s) => s.selectedProfileId);
   const saveProgress = useMutation(api.userProgress.saveProgress);
@@ -110,6 +111,15 @@ export default function Exercise() {
       setBlankIndices(sentence.blankWordIndices || []);
     }
   }, [sentence, currentExercise?.mode, setBlankIndices]);
+
+  useEffect(() => {
+    if (sentence?.audioUrl && audioRef.current) {
+      audioRef.current.src = sentence.audioUrl;
+      audioRef.current.play().catch(error => {
+        console.error('Error playing audio:', error);
+      });
+    }
+  }, [sentence?.audioUrl]);
 
   const getWordLimit = useCallback(
     (word: string, isDistractor: boolean) =>
@@ -238,6 +248,7 @@ export default function Exercise() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <audio ref={audioRef} className="hidden" />
       <div className="pt-12 px-4 pb-8 flex flex-col items-center">
         <TopNav />
         <div className="w-full max-w-sm">

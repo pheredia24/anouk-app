@@ -55,10 +55,10 @@ export const create = mutation({
 });
 
 export const deleteExercise = mutation({
-  args: {
-    id: v.id("exercises"),
-  },
+  args: { id: v.id("exercises") },
   handler: async (ctx, args) => {
+    const exercise = await ctx.db.get(args.id);
+    if (!exercise) throw new Error("Exercise not found");
     await ctx.db.delete(args.id);
   },
 });
