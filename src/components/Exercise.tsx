@@ -192,6 +192,13 @@ export default function Exercise() {
   const handleNext = useCallback(() => {
     reset();
     setSelectedWord(null);
+    
+    // Stop current audio if playing
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    
     if (currentIndex < exercises.length - 1) {
       setCurrentIndex((i) => i + 1);
     } else {
