@@ -262,7 +262,7 @@ export default function Exercise() {
               <div className="flex flex-col items-center gap-2">
                 <div className="text-xl font-semibold text-center">
                   {sentence.type && (
-                    <div className="mb-6 text-gray-600 text-base font-normal italic">
+                    <div className="mb-6 text-gray-600 text-lg font-normal italic">
                       {(sentence.type === 'favourite_sentence' || sentence.type === 'anecdote') && sentence.addedBy ? (
                         <AuthorInline 
                           name={sentence.addedBy} 
