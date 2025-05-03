@@ -20,10 +20,14 @@ export default function ProfileSelection() {
     return <Spinner />;
   }
 
-  // Sort profiles alphabetically by name
-  const sortedProfiles = [...profiles].sort((a, b) => 
-    a.name.localeCompare(b.name, 'es', { sensitivity: 'base' })
-  );
+  // Sort profiles: Anouk first, then rest alphabetically
+  const sortedProfiles = [...profiles].sort((a, b) => {
+    // If one of the profiles is Anouk's, it should come first
+    if (a.name.toLowerCase() === 'anouk') return -1;
+    if (b.name.toLowerCase() === 'anouk') return 1;
+    // Otherwise, sort alphabetically
+    return a.name.localeCompare(b.name, 'es', { sensitivity: 'base' });
+  });
 
   return (
     <div className="h-screen flex flex-col bg-white">

@@ -6,25 +6,18 @@ export default function Welcome() {
   return (
     <div className="h-screen overflow-hidden flex flex-col items-center justify-start bg-white px-5 pt-16">
       <div className="w-full max-w-md flex flex-col items-center gap-8">
-        <h1 className="text-3xl font-semibold text-left text-[#4B4B4B]">
+        <h1 className="text-3xl font-semibold text-center text-[#4B4B4B]">
           ¡Feliz cumpleaños!
         </h1>
         
-        <div className="w-full rounded-lg bg-[rgba(137,226,25,0)] p-6 text-left">
-          <p className="text-lg text-[#4B4B4B]">
-            
-            We have gathered in one app:
-            <br />  
-            • classic phrases from the group
-            <br />
-            • anecdotes we have with you
-            <br />
-            • words that we think you might like and should learn
-            <br /> 
-            <br />
-            We hope you like this personalized Duolingo!
-            <br /> 
-            <br />
+        <div className="w-full rounded-lg bg-[rgba(137,226,25,0)] p-6 text-center">
+          <p className="text-lg text-[#4B4B4B] leading-relaxed">
+            This personalized Duolingo is filled with our most used idioms and expressions, beautiful anecdotes we have with you and words we think you might enjoy learning.
+            <br /><br />
+            Everyone has contributed to the app with their ideas and their voices, as you will very soon see.
+            <br /><br />
+            Our goal is to help you learn the Spanish we use and love.
+            <br /><br />
             We love you Nouk! ❤️
           </p>
         </div>

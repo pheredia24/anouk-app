@@ -30,7 +30,7 @@ export default function FinishScreen() {
               You are more than ready to put your newly acquired special Spanish sentences to the test in real life!
               <br />
               <br />
-              Ahora solo queda practicar con todos nosotros y disfrutar de Essaouira! 
+              Ahora solo queda practicar con todos nosotros! ❤️
             </p>
         </div>
 
