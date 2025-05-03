@@ -15,7 +15,7 @@ export default function WordSelector({ correctWord, distractors, onSelect, selec
   }, [distractors, correctWord]);
 
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Selecciona la palabra correcta">
       {allOptions.map((word) => (
         <button
           key={word}
@@ -27,6 +27,19 @@ export default function WordSelector({ correctWord, distractors, onSelect, selec
               : 'border-gray-200 hover:border-[#58CC02] text-gray-700'
             }
           `}
+          role="radio"
+          aria-checked={selectedWord === word}
+          // Prevent auto-focus
+          tabIndex={-1}
+          // Only allow focus when navigating with keyboard
+          onFocus={(e) => {
+            if (e.target.matches(':focus-visible')) {
+              e.target.tabIndex = 0;
+            }
+          }}
+          onBlur={(e) => {
+            e.target.tabIndex = -1;
+          }}
         >
           {word}
         </button>

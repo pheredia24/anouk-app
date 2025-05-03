@@ -256,7 +256,7 @@ export default function Exercise() {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <audio ref={audioRef} className="hidden" />
-      <div className="pt-12 px-4 pb-8 flex flex-col items-center">
+      <div className="pt-12 px-4 pb-32 flex flex-col items-center">
         <TopNav />
         <div className="w-full max-w-sm">
           <ProgressBar current={currentIndex + 1} total={exercises.length} />
