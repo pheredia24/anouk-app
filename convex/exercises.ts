@@ -88,3 +88,27 @@ export const updateMode = mutation({
     await ctx.db.patch(args.id, { mode: args.mode });
   },
 });
+
+export const randomizeOrder = mutation({
+  args: {},
+  returns: v.number(),
+  handler: async (ctx) => {
+    // Get all exercises
+    const exercises = await ctx.db.query("exercises").collect();
+    
+    // Create array of indices and shuffle it
+    const shuffledIndices = Array.from({ length: exercises.length }, (_, i) => i);
+    for (let i = shuffledIndices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
+    }
+
+    // Update each exercise with its new order
+    for (let i = 0; i < exercises.length; i++) {
+      const exercise = exercises[i];
+      await ctx.db.patch(exercise._id, { order: shuffledIndices[i] });
+    }
+
+    return exercises.length;
+  },
+});
