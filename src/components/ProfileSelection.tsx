@@ -38,22 +38,29 @@ export default function ProfileSelection() {
         <h1 className="text-2xl font-bold text-center mb-8">¿Quién eres?</h1>
         <div className="overflow-y-auto flex-1 px-2">
           <div className="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-6 pb-4">
-            {sortedProfiles.map((profile) => (
-              <button
-                key={profile._id}
-                onClick={() => handleProfileSelect(profile._id)}
-                className="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <div className="w-20 h-20 md:w-24 md:h-24 mb-2">
-                  <img
-                    src={profile.avatarUrl}
-                    alt={profile.name}
-                    className="w-full h-full rounded-full object-cover"
-                  />
-                </div>
-                <span className="font-medium text-base md:text-lg text-center">{profile.name}</span>
-              </button>
-            ))}
+            {sortedProfiles.map((profile) => {
+              const isAnouk = profile.name.toLowerCase() === 'anouk';
+              return (
+                <button
+                  key={profile._id}
+                  onClick={() => handleProfileSelect(profile._id)}
+                  className="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <div className={`w-20 h-20 md:w-24 md:h-24 mb-2 rounded-full ${
+                    isAnouk ? 'p-1 bg-gradient-to-r from-[#58CC02] to-[#89E219]' : ''
+                  }`}>
+                    <img
+                      src={profile.avatarUrl}
+                      alt={profile.name}
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  </div>
+                  <span className="font-medium text-base md:text-lg text-center">
+                    {profile.name}{isAnouk ? ' 🎂' : ''}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
