@@ -16,6 +16,13 @@ function getWords(text: string): string[] {
   return text.split(/\s+/);
 }
 
+// Filter interface
+interface Filters {
+  type: "" | "anecdote" | "classic_sentence" | "favourite_sentence";
+  missingAudio: boolean;
+  missingDistractors: boolean;
+}
+
 function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState(sentence.text);
@@ -262,6 +269,31 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
 
 export default function EditSentences() {
   const sentences = useQuery(api.sentences.listAll) || [];
+  const [filters, setFilters] = useState<Filters>({
+    type: "",
+    missingAudio: false,
+    missingDistractors: false
+  });
+
+  // Apply filters to sentences
+  const filteredSentences = sentences.filter(sentence => {
+    // Type filter
+    if (filters.type && sentence.type !== filters.type) {
+      return false;
+    }
+
+    // Missing audio filter
+    if (filters.missingAudio && sentence.audioUrl) {
+      return false;
+    }
+
+    // Missing distractors filter
+    if (filters.missingDistractors && sentence.distractorWords && sentence.distractorWords.length > 0) {
+      return false;
+    }
+
+    return true;
+  });
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -270,8 +302,70 @@ export default function EditSentences() {
         <div className="w-full max-w-2xl">
           <h1 className="text-2xl font-bold text-center mb-8">Editar Frases</h1>
           
+          {/* Filters */}
+          <div className="mb-8 p-4 border rounded-lg space-y-4">
+            <h2 className="font-medium text-lg">Filtros</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Type filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Tipo de Frase
+                </label>
+                <select
+                  value={filters.type}
+                  onChange={(e) => setFilters(prev => ({ 
+                    ...prev, 
+                    type: e.target.value as Filters['type']
+                  }))}
+                  className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Todos los tipos</option>
+                  <option value="anecdote">Anécdotas</option>
+                  <option value="classic_sentence">Frases Clásicas</option>
+                  <option value="favourite_sentence">Frases Favoritas</option>
+                </select>
+              </div>
+
+              {/* Checkboxes for missing content */}
+              <div className="space-y-2">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={filters.missingAudio}
+                    onChange={(e) => setFilters(prev => ({ 
+                      ...prev, 
+                      missingAudio: e.target.checked 
+                    }))}
+                    className="rounded border-gray-300 text-blue-500 focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-700">Sin audio</span>
+                </label>
+
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={filters.missingDistractors}
+                    onChange={(e) => setFilters(prev => ({ 
+                      ...prev, 
+                      missingDistractors: e.target.checked 
+                    }))}
+                    className="rounded border-gray-300 text-blue-500 focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-700">Sin palabras distractoras</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Results count */}
+            <div className="text-sm text-gray-600">
+              Mostrando {filteredSentences.length} de {sentences.length} frases
+            </div>
+          </div>
+
+          {/* Sentences list */}
           <div className="space-y-4">
-            {sentences.map((sentence) => (
+            {filteredSentences.map((sentence) => (
               <EditableSentence
                 key={sentence._id}
                 sentence={sentence}
