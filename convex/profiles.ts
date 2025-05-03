@@ -41,3 +41,19 @@ export const toggleHardMode = mutation({
     });
   },
 });
+
+export const update = mutation({
+  args: {
+    id: v.id("profiles"),
+    name: v.optional(v.string()),
+    avatarUrl: v.optional(v.string()),
+    hardMode: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const { id, ...updates } = args;
+    const profile = await ctx.db.get(id);
+    if (!profile) throw new Error("Profile not found");
+    
+    await ctx.db.patch(id, updates);
+  },
+});
