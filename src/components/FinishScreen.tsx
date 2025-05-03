@@ -35,7 +35,7 @@ export default function FinishScreen() {
         </div>
 
         <button
-          onClick={() => navigate("/sentences")}
+          onClick={() => navigate("/sentences", { state: { fromFinish: true } })}
           className="w-full rounded-full bg-[#58CC02] text-white py-3 px-6 text-lg font-semibold hover:bg-[#89E219] transition-colors"
         >
           Ver todas las frases

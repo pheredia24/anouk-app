@@ -4,16 +4,18 @@ import { api } from "../../convex/_generated/api";
 import { Doc } from "../../convex/_generated/dataModel";
 import TopNav from "./TopNav";
 import Spinner from "./Spinner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function ExerciseList() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [expandedSentenceId, setExpandedSentenceId] = useState<string | null>(null);
   const [isSpanishExplanation, setIsSpanishExplanation] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // Get all sentences
   const sentences = useQuery(api.sentences.listAll) || [];
+  const isFromFinish = location.state?.fromFinish;
 
   const handleSentenceClick = (sentenceId: string) => {
     setExpandedSentenceId(expandedSentenceId === sentenceId ? null : sentenceId);
@@ -27,32 +29,48 @@ export default function ExerciseList() {
     }
   };
 
+  const getSentenceTypeLabel = (type: string | undefined) => {
+    switch (type) {
+      case 'anecdote':
+        return 'Anécdota';
+      case 'classic_sentence':
+        return 'Frase Clásica';
+      case 'favourite_sentence':
+        return 'Frase Favorita';
+      default:
+        return null;
+    }
+  };
+
   if (!sentences.length) {
     return <Spinner />;
   }
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-white">
       <div className="absolute top-6 left-4">
         <TopNav />
       </div>
-      <div className="flex-1 flex flex-col pt-24 px-4 pb-12 max-w-3xl mx-auto">
+      <div className="flex-1 flex flex-col pt-24 px-4 pb-12 max-w-3xl mx-auto w-full overflow-hidden">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold">Todas las frases</h1>
-          <button
-            onClick={() => navigate("/create")}
-            className="rounded-full bg-[#58CC02] text-white py-2 px-4 text-base font-semibold hover:bg-[#89E219] transition-colors"
-          >
-            Añadir frase
-          </button>
+          {!isFromFinish && (
+            <button
+              onClick={() => navigate("/create")}
+              className="rounded-full bg-[#58CC02] text-white py-2 px-4 text-base font-semibold hover:bg-[#89E219] transition-colors"
+            >
+              Añadir frase
+            </button>
+          )}
         </div>
         
         {/* Hidden audio element for playing sounds */}
         <audio ref={audioRef} className="hidden" />
 
-        <div className="space-y-4">
+        <div className="space-y-4 overflow-y-auto flex-1 pr-2">
           {sentences.map((sentence) => {
             const isExpanded = expandedSentenceId === sentence._id;
+            const typeLabel = getSentenceTypeLabel(sentence.type);
 
             return (
               <div
@@ -61,9 +79,14 @@ export default function ExerciseList() {
               >
                 <button
                   onClick={() => handleSentenceClick(sentence._id)}
-                  className="w-full p-4 text-left flex items-center justify-between"
+                  className="w-full p-4 text-left flex items-start justify-between"
                 >
                   <div className="flex-1">
+                    {typeLabel && (
+                      <div className="text-sm text-gray-500 mb-2 italic">
+                        {typeLabel}
+                      </div>
+                    )}
                     <div className="font-medium">
                       {sentence.text}
                     </div>
@@ -71,6 +94,9 @@ export default function ExerciseList() {
                       {sentence.translation}
                     </div>
                   </div>
+                  {sentence.audioUrl && (
+                    <span className="text-gray-400 ml-2">🔊</span>
+                  )}
                 </button>
 
                 {/* Expanded content */}

@@ -5,7 +5,7 @@ export default function Splash() {
 
   return (
     <div className="h-screen overflow-hidden flex flex-col items-center justify-center">
-      <div className="w-full max-w-md flex flex-col items-center gap-8">
+      <div className="w-full max-w-md flex flex-col items-center gap-8 px-5">
         <img 
           src="/anoukingo.png" 
           alt="Anoukingo"
