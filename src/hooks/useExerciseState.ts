@@ -31,7 +31,7 @@ type ExerciseAction =
 const initialState: ExerciseState = {
   selectedWords: [],
   isCorrect: null,
-  isSpanishExplanation: false,
+  isSpanishExplanation: true,
   isSaving: false,
   error: null,
   exerciseId: null,
