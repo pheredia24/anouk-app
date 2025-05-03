@@ -24,7 +24,7 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
   const [explanationTranslated, setExplanationTranslated] = useState(sentence.explanationTranslated || '');
   const [blankWordIndices, setBlankWordIndices] = useState<number[]>(sentence.blankWordIndices || []);
   const [type, setType] = useState<"anecdote" | "classic_sentence" | "favourite_sentence" | "">(sentence.type || "");
-  const [distractorWords, setDistractorWords] = useState<string[]>(sentence.distractorWords || []);
+  const [distractorWordsInput, setDistractorWordsInput] = useState((sentence.distractorWords || []).join('\n'));
   const [isSaving, setIsSaving] = useState(false);
 
   const updateSentence = useMutation(api.sentences.update);
@@ -32,6 +32,12 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      // Process distractor words: split by newlines and/or commas, trim, and filter empty
+      const distractorWords = distractorWordsInput
+        .split(/[\n,]/)
+        .map(word => word.trim())
+        .filter(word => word !== '');
+
       await updateSentence({
         id: sentence._id,
         text,
@@ -62,9 +68,7 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
   };
 
   const handleDistractorWordsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    // Split by commas and trim each word
-    const words = e.target.value.split(',').map(word => word.trim()).filter(word => word !== '');
-    setDistractorWords(words);
+    setDistractorWordsInput(e.target.value);
   };
 
   if (!isEditing) {
@@ -183,14 +187,14 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
           Palabras Distractoras
         </label>
         <textarea
-          value={distractorWords.join(', ')}
+          value={distractorWordsInput}
           onChange={handleDistractorWordsChange}
           className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          rows={2}
-          placeholder="Escribe palabras distractoras separadas por comas"
+          rows={4}
+          placeholder="Escribe palabras distractoras (una por línea o separadas por comas)"
         />
         <p className="text-sm text-gray-500 mt-1">
-          Escribe palabras distractoras separadas por comas para ejercicios de selección múltiple
+          Escribe cada palabra distractora en una nueva línea o sepáralas por comas
         </p>
       </div>
 
