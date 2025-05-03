@@ -32,6 +32,7 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
   const [blankWordIndices, setBlankWordIndices] = useState<number[]>(sentence.blankWordIndices || []);
   const [type, setType] = useState<"anecdote" | "classic_sentence" | "favourite_sentence" | "">(sentence.type || "");
   const [distractorWordsInput, setDistractorWordsInput] = useState((sentence.distractorWords || []).join('\n'));
+  const [audioUrl, setAudioUrl] = useState(sentence.audioUrl || '');
   const [isSaving, setIsSaving] = useState(false);
 
   const updateSentence = useMutation(api.sentences.update);
@@ -54,6 +55,8 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
         blankWordIndices,
         type: type || undefined,
         distractorWords,
+        audioUrl: audioUrl || undefined,
+        audioUrl: audioUrl || undefined,
       });
       toast.success('¡Frase actualizada!');
       setIsEditing(false);
@@ -102,6 +105,11 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
                 Tipo: {sentence.type === 'anecdote' ? 'Anécdota' : 
                        sentence.type === 'classic_sentence' ? 'Frase Clásica' : 
                        'Frase Favorita'}
+              </p>
+            )}
+            {sentence.audioUrl && (
+              <p className="text-sm text-gray-500 mt-1">
+                Audio: <a href={sentence.audioUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Escuchar</a>
               </p>
             )}
             {sentence.distractorWords && sentence.distractorWords.length > 0 && (
@@ -245,6 +253,27 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
           <option value="classic_sentence">Frase Clásica</option>
           <option value="favourite_sentence">Frase Favorita</option>
         </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          URL del Audio
+        </label>
+        <div className="space-y-2">
+          <input
+            type="text"
+            value={audioUrl}
+            onChange={(e) => setAudioUrl(e.target.value)}
+            className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="URL del audio (opcional)"
+          />
+          {audioUrl && (
+            <audio controls className="w-full mt-2">
+              <source src={audioUrl} type="audio/mpeg" />
+              Tu navegador no soporta el elemento de audio.
+            </audio>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center gap-2">

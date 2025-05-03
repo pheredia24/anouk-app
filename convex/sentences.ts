@@ -46,6 +46,7 @@ export const update = mutation({
     explanationTranslated: v.optional(v.string()),
     blankWordIndices: v.optional(v.array(v.number())),
     distractorWords: v.optional(v.array(v.string())),
+    audioUrl: v.optional(v.string()),
     type: v.optional(v.union(
       v.literal("anecdote"),
       v.literal("classic_sentence"),
