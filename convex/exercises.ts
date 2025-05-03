@@ -112,3 +112,27 @@ export const randomizeOrder = mutation({
     return exercises.length;
   },
 });
+
+export const cleanupOrphaned = mutation({
+  args: {},
+  returns: v.number(),
+  handler: async (ctx) => {
+    // Get all exercises and sentences
+    const exercises = await ctx.db.query("exercises").collect();
+    const sentences = await ctx.db.query("sentences").collect();
+    
+    // Create a Set of sentence IDs for faster lookup
+    const sentenceIds = new Set(sentences.map(s => s._id));
+    
+    // Find and delete orphaned exercises
+    let deletedCount = 0;
+    for (const exercise of exercises) {
+      if (!sentenceIds.has(exercise.sentenceId)) {
+        await ctx.db.delete(exercise._id);
+        deletedCount++;
+      }
+    }
+    
+    return deletedCount;
+  },
+});
