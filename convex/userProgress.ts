@@ -79,6 +79,28 @@ export const getAnalytics = query({
     // Total completed exercises
     const totalCompletions = allProgress.length;
 
+    // Get daily completions for the last 30 days
+    const now = Date.now();
+    const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000);
+    
+    const dailyCompletions = allProgress
+      .filter(progress => progress.completedAt >= thirtyDaysAgo)
+      .reduce((acc, progress) => {
+        const date = new Date(progress.completedAt).toISOString().split('T')[0];
+        acc[date] = (acc[date] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+    // Fill in missing days with zero completions
+    const dailyData = [];
+    for (let i = 0; i < 30; i++) {
+      const date = new Date(now - (i * 24 * 60 * 60 * 1000)).toISOString().split('T')[0];
+      dailyData.unshift({
+        date,
+        completions: dailyCompletions[date] || 0
+      });
+    }
+
     // Exercises completed per profile
     const completionsPerProfile = allProfiles.map(profile => ({
       profileId: profile._id,
@@ -125,7 +147,8 @@ export const getAnalytics = query({
       totalCompletions,
       completionsPerProfile,
       recentCompletionsWithDetails,
-      completionsByMode
+      completionsByMode,
+      dailyData
     };
   },
 }); 

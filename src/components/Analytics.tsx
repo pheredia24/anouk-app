@@ -2,6 +2,15 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import Spinner from "./Spinner";
 import TopNav from "./TopNav";
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
 
 export default function Analytics() {
   const analytics = useQuery(api.userProgress.getAnalytics);
@@ -10,7 +19,16 @@ export default function Analytics() {
     return <Spinner />;
   }
 
-  const { totalCompletions, completionsPerProfile, recentCompletionsWithDetails, completionsByMode } = analytics;
+  const { totalCompletions, completionsPerProfile, recentCompletionsWithDetails, completionsByMode, dailyData } = analytics;
+
+  // Format dates for the chart
+  const formattedDailyData = dailyData.map(item => ({
+    ...item,
+    formattedDate: new Date(item.date).toLocaleDateString('es-ES', {
+      month: 'short',
+      day: 'numeric'
+    })
+  }));
 
   return (
     <div className="min-h-screen bg-white">
@@ -24,6 +42,52 @@ export default function Analytics() {
           <div className="bg-green-50 rounded-xl p-6 text-center">
             <h2 className="text-2xl font-semibold text-green-800">Total Exercises Completed</h2>
             <p className="text-4xl font-bold text-green-600 mt-2">{totalCompletions}</p>
+          </div>
+
+          {/* Daily Activity Chart */}
+          <div className="bg-white rounded-xl border p-6">
+            <h2 className="text-xl font-semibold mb-4">Daily Activity</h2>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={formattedDailyData}>
+                  <defs>
+                    <linearGradient id="colorCompletions" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#58CC02" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="#58CC02" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis
+                    dataKey="formattedDate"
+                    tick={{ fontSize: 12 }}
+                    interval="preserveStartEnd"
+                    tickMargin={10}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 12 }}
+                    tickMargin={10}
+                    allowDecimals={false}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'white',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      padding: '8px 12px'
+                    }}
+                    labelStyle={{ fontWeight: 'bold', marginBottom: '4px' }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="completions"
+                    stroke="#58CC02"
+                    fillOpacity={1}
+                    fill="url(#colorCompletions)"
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
           {/* Completions by Mode */}
