@@ -21,6 +21,7 @@ interface Filters {
   type: "" | "anecdote" | "classic_sentence" | "favourite_sentence";
   missingAudio: boolean;
   missingDistractors: boolean;
+  searchQuery: string;
 }
 
 function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
@@ -55,8 +56,7 @@ function EditableSentence({ sentence, onSave }: EditableSentenceProps) {
         blankWordIndices,
         type: type || undefined,
         distractorWords,
-        audioUrl: audioUrl || undefined,
-        audioUrl: audioUrl || undefined,
+        audioUrl: audioUrl || undefined
       });
       toast.success('¡Frase actualizada!');
       setIsEditing(false);
@@ -301,11 +301,22 @@ export default function EditSentences() {
   const [filters, setFilters] = useState<Filters>({
     type: "",
     missingAudio: false,
-    missingDistractors: false
+    missingDistractors: false,
+    searchQuery: ""
   });
 
   // Apply filters to sentences
   const filteredSentences = sentences.filter(sentence => {
+    // Search filter
+    if (filters.searchQuery) {
+      const searchLower = filters.searchQuery.toLowerCase();
+      const textMatch = sentence.text.toLowerCase().includes(searchLower);
+      const translationMatch = sentence.translation.toLowerCase().includes(searchLower);
+      if (!textMatch && !translationMatch) {
+        return false;
+      }
+    }
+
     // Type filter
     if (filters.type && sentence.type !== filters.type) {
       return false;
@@ -334,6 +345,23 @@ export default function EditSentences() {
           {/* Filters */}
           <div className="mb-8 p-4 border rounded-lg space-y-4">
             <h2 className="font-medium text-lg">Filtros</h2>
+            
+            {/* Search box */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Buscar
+              </label>
+              <input
+                type="text"
+                value={filters.searchQuery}
+                onChange={(e) => setFilters(prev => ({ 
+                  ...prev, 
+                  searchQuery: e.target.value 
+                }))}
+                placeholder="Buscar por texto en inglés o español..."
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Type filter */}
