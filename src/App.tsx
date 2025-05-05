@@ -9,6 +9,7 @@ import FinishScreen from "./components/FinishScreen";
 import CreateSentence from "./components/CreateSentence";
 import EditSentences from "./components/EditSentences";
 import EditProfiles from "./components/EditProfiles";
+import Analytics from "./components/Analytics";
 import { Toaster } from "sonner";
 
 export default function App() {
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/create" element={<CreateSentence />} />
         <Route path="/edit" element={<EditSentences />} />
         <Route path="/edit-profiles" element={<EditProfiles />} />
+        <Route path="/analytics" element={<Analytics />} />
       </Routes>
     </Router>
   );
