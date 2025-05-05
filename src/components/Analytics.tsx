@@ -12,6 +12,28 @@ import {
   Tooltip,
 } from "recharts";
 
+interface DailyData {
+  date: string;
+  completions: number;
+}
+
+interface CompletionWithDetails {
+  _id: string;
+  profileName: string;
+  profileAvatarUrl?: string;
+  exerciseMode: string;
+  sentence: string;
+  translation: string;
+  completedAt: number;
+}
+
+interface ProfileCompletion {
+  profileId: string;
+  name: string;
+  avatarUrl: string;
+  completions: number;
+}
+
 export default function Analytics() {
   const analytics = useQuery(api.userProgress.getAnalytics);
 
@@ -22,7 +44,7 @@ export default function Analytics() {
   const { totalCompletions, completionsPerProfile, recentCompletionsWithDetails, completionsByMode, dailyData } = analytics;
 
   // Format dates for the chart
-  const formattedDailyData = dailyData.map(item => ({
+  const formattedDailyData = dailyData.map((item: DailyData) => ({
     ...item,
     formattedDate: new Date(item.date).toLocaleDateString('es-ES', {
       month: 'short',
@@ -108,8 +130,8 @@ export default function Analytics() {
             <h2 className="text-xl font-semibold mb-4">Profile Leaderboard</h2>
             <div className="space-y-4">
               {completionsPerProfile
-                .sort((a, b) => b.completions - a.completions)
-                .map((profile) => (
+                .sort((a: ProfileCompletion, b: ProfileCompletion) => b.completions - a.completions)
+                .map((profile: ProfileCompletion) => (
                   <div key={profile.profileId} className="flex items-center gap-4 bg-gray-50 rounded-lg p-4">
                     <img
                       src={profile.avatarUrl}
@@ -129,7 +151,7 @@ export default function Analytics() {
           <div className="bg-white rounded-xl border p-6">
             <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
             <div className="space-y-4">
-              {recentCompletionsWithDetails.map((completion) => (
+              {recentCompletionsWithDetails.map((completion: CompletionWithDetails) => (
                 <div key={completion._id} className="bg-gray-50 rounded-lg p-4">
                   <div className="flex items-center gap-3 mb-2">
                     <img
