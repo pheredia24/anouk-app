@@ -66,6 +66,7 @@ export default function Exercise() {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
+  const [showTranslationHint, setShowTranslationHint] = useState(false);
   const didRunRestore = useRef(false);
   const fireConfetti = useConfetti(200);
   const { playCorrect, playIncorrect } = useSoundEffects();
@@ -192,6 +193,7 @@ export default function Exercise() {
   const handleNext = useCallback(() => {
     reset();
     setSelectedWord(null);
+    setShowTranslationHint(false);
     
     // Stop current audio if playing
     if (audioRef.current) {
@@ -211,6 +213,9 @@ export default function Exercise() {
     
     if (currentExercise?.mode === "select_one_word") {
       setSelectedWord(sentence.translation);
+      revealHint();
+    } else if (currentExercise?.mode === "fill_in_blank") {
+      setShowTranslationHint(true);
       revealHint();
     } else {
       const correctWords = processWords(sentence.translation);
@@ -248,9 +253,10 @@ export default function Exercise() {
   }
 
   const showHintButton = (
-    errorCount >= 3 && 
-    ["lecture", "audio", "audio_and_lecture"].includes(currentExercise.mode) &&
-    revealedHints < processWords(sentence.translation).length
+    errorCount >= 2 && 
+    (["lecture", "audio", "audio_and_lecture", "fill_in_blank"].includes(currentExercise.mode)) &&
+    ((currentExercise.mode === "fill_in_blank" && !showTranslationHint) ||
+     (currentExercise.mode !== "fill_in_blank" && revealedHints < processWords(sentence.translation).length))
   );
 
   return (
@@ -346,6 +352,50 @@ export default function Exercise() {
               />
             ) : currentExercise.mode === "fill_in_blank" ? (
               <>
+                <div>
+                  {sentence.translation.split(/\s+/).map((word, index) => {
+                    const blankIndices = (sentence.blankWordIndices || []).sort((a, b) => a - b);
+                    const isBlank = blankIndices.includes(index);
+                    const blankIndex = blankIndices.findIndex(i => i === index);
+                    const selectedWord = isBlank ? selectedWords[blankIndex] : null;
+                    
+                    return (
+                      <span key={index}>
+                        {index > 0 && ' '}
+                        {isBlank ? (
+                          <span 
+                            className={`px-2 py-1 rounded ${
+                              selectedWord 
+                                ? 'bg-blue-100 text-blue-800' 
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}
+                            onClick={() => {
+                              if (selectedWord) {
+                                // Remove word and all subsequent words
+                                const newWords = selectedWords.slice(0, blankIndex);
+                                setSelectedWords(newWords);
+                              }
+                            }}
+                            style={{ cursor: selectedWord ? 'pointer' : 'default' }}
+                          >
+                            {selectedWord || '____'}
+                          </span>
+                        ) : (
+                          word
+                        )}
+                      </span>
+                    );
+                  })}
+                </div>
+
+                {/* Translation hint for fill_in_blank mode */}
+                {showTranslationHint && (
+                  <div className="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <p className="text-yellow-800 font-medium">Traducción:</p>
+                    <p className="text-yellow-900">{sentence.text}</p>
+                  </div>
+                )}
+
                 {!isCorrect && (
                   <WordBank
                     words={[
