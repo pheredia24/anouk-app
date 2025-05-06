@@ -129,8 +129,9 @@ export const importAnecdotes = internalMutation({
       const result = await ctx.db.insert("sentences", {
         text: anecdote.text,
         translation: anecdote.translation,
-        type: "anecdote" as const,
-        addedBy: anecdote.addedBy
+        type: anecdote.type,
+        addedBy: anecdote.addedBy,
+        lastModified: Date.now(),
       });
       results.push(result);
     }

@@ -136,3 +136,25 @@ export const cleanupOrphaned = mutation({
     return deletedCount;
   },
 });
+
+export const getRecentExercises = query({
+  handler: async (ctx) => {
+    const exercises = await ctx.db
+      .query("exercises")
+      .order("desc")
+      .take(10);
+
+    // Fetch associated sentences
+    const exercisesWithSentences = await Promise.all(
+      exercises.map(async (exercise) => {
+        const sentence = await ctx.db.get(exercise.sentenceId);
+        return {
+          ...exercise,
+          sentence
+        };
+      })
+    );
+
+    return exercisesWithSentences;
+  },
+});

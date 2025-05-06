@@ -34,6 +34,78 @@ interface ProfileCompletion {
   completions: number;
 }
 
+function RecentSentences() {
+  const recentSentences = useQuery(api.sentences.getRecentSentences);
+
+  if (!recentSentences) return null;
+
+  return (
+    <div className="bg-white rounded-lg shadow p-6">
+      <h2 className="text-xl font-semibold mb-4">Recent Sentences</h2>
+      <div className="space-y-4">
+        {recentSentences.map((sentence) => (
+          <div key={sentence._id} className="border-b pb-4 last:border-b-0 last:pb-0">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="font-medium text-gray-900">{sentence.translation}</p>
+                <p className="text-gray-600">{sentence.text}</p>
+                {sentence.addedBy && (
+                  <p className="text-sm text-gray-500">Added by: {sentence.addedBy}</p>
+                )}
+              </div>
+              <div className="text-sm text-gray-500 text-right">
+                <span className="block font-medium">Last Modified</span>
+                {sentence.lastModified ? new Date(sentence.lastModified).toLocaleString('es-ES', {
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }) : 'No date'}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RecentExercises() {
+  const recentExercises = useQuery(api.exercises.getRecentExercises);
+
+  if (!recentExercises) return null;
+
+  return (
+    <div className="bg-white rounded-lg shadow p-6">
+      <h2 className="text-xl font-semibold mb-4">Recent Exercises</h2>
+      <div className="space-y-4">
+        {recentExercises.map((exercise) => (
+          <div key={exercise._id} className="border-b pb-4 last:border-b-0 last:pb-0">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="font-medium text-gray-900">{exercise.sentence?.translation}</p>
+                <p className="text-gray-600">{exercise.sentence?.text}</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Mode: <span className="capitalize">{exercise.mode.replace(/_/g, ' ')}</span>
+                </p>
+              </div>
+              <div className="text-sm text-gray-500 text-right">
+                <span className="block font-medium">Created</span>
+                {new Date(exercise._creationTime).toLocaleString('es-ES', {
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Analytics() {
   const analytics = useQuery(api.userProgress.getAnalytics);
 
@@ -145,6 +217,12 @@ export default function Analytics() {
                   </div>
                 ))}
             </div>
+          </div>
+
+          {/* Recent Sentences and Recent Exercises */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <RecentSentences />
+            <RecentExercises />
           </div>
 
           {/* Recent Activity */}

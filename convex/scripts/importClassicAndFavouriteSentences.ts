@@ -628,7 +628,8 @@ export const importClassicAndFavouriteSentences = internalMutation({
         addedBy: sentence.addedBy || undefined,
         explanation: sentence.explanation,
         explanationTranslated: sentence.explanationTranslated,
-        distractorWords: sentence.distractorWords
+        distractorWords: sentence.distractorWords,
+        lastModified: Date.now(),
       });
       results.push(result);
     }

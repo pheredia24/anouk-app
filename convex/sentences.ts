@@ -33,7 +33,10 @@ export const create = mutation({
     )),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert("sentences", args);
+    return await ctx.db.insert("sentences", {
+      ...args,
+      lastModified: Date.now(),
+    });
   },
 });
 
@@ -42,11 +45,11 @@ export const update = mutation({
     id: v.id("sentences"),
     text: v.string(),
     translation: v.string(),
+    audioUrl: v.optional(v.string()),
+    distractorWords: v.optional(v.array(v.string())),
     explanation: v.optional(v.string()),
     explanationTranslated: v.optional(v.string()),
     blankWordIndices: v.optional(v.array(v.number())),
-    distractorWords: v.optional(v.array(v.string())),
-    audioUrl: v.optional(v.string()),
     type: v.optional(v.union(
       v.literal("anecdote"),
       v.literal("classic_sentence"),
@@ -54,8 +57,22 @@ export const update = mutation({
     )),
   },
   handler: async (ctx, args) => {
-    const { id, ...updates } = args;
-    await ctx.db.patch(id, updates);
+    const { id, ...rest } = args;
+    return await ctx.db.patch(id, {
+      ...rest,
+      lastModified: Date.now(),
+    });
+  },
+});
+
+export const getRecentSentences = query({
+  handler: async (ctx) => {
+    const sentences = await ctx.db
+      .query("sentences")
+      .withIndex("by_lastModified")
+      .order("desc")
+      .take(10);
+    return sentences;
   },
 });
 
@@ -112,3 +129,18 @@ export const getSentencesByDifficulty = (difficulty: number) => {
 export const getSentencesByTag = (tag: string) => {
   return sentences.filter(sentence => sentence.tags?.includes(tag));
 };
+
+// Backfill lastModified field for existing sentences
+export const backfillLastModified = mutation({
+  handler: async (ctx) => {
+    const sentences = await ctx.db.query("sentences").collect();
+    
+    for (const sentence of sentences) {
+      if (!sentence.lastModified) {
+        await ctx.db.patch(sentence._id, {
+          lastModified: Date.now(),
+        });
+      }
+    }
+  },
+});

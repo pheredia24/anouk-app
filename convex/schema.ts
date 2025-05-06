@@ -17,7 +17,9 @@ const applicationTables = {
       v.literal("classic_sentence"),
       v.literal("favourite_sentence")
     )),
-  }).index("by_translation", ["translation"]),
+    lastModified: v.optional(v.number()),
+  }).index("by_translation", ["translation"])
+    .index("by_lastModified", ["lastModified"]),
 
   exercises: defineTable({
     sentenceId: v.id("sentences"),
